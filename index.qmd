@@ -1,0 +1,30 @@
+---
+engine: markdown
+---
+
+# Presentación {.unnumbered}
+
+Programar ya no es solo cosa de informáticos. Descargar miles de registros de una API, limpiar una base de datos, automatizar un análisis para que se pueda repetir, compartir un método como paquete o conectar tus herramientas con un asistente de inteligencia artificial son tareas cada vez más habituales en cualquier disciplina. Hacerlas con código, y no a mano, es lo que permite que la investigación sea **reproducible**, **escalable** y **compartible**.
+
+Este libro es una introducción práctica para doctorandos y personal investigador. Usa **Python** y **R** en paralelo, porque cada comunidad trabaja con uno u otro (y muchas con los dos), y todos los ejercicios se ejecutan **en tu navegador**, sin instalar nada, con Pyodide y webR.
+
+::: {.callout-note appearance="simple" icon="false"}
+## Cómo citar este libro
+> Sánchez-Núñez, P. (2026). *Programación para la investigación: Python, R, ETL, API, paquetes y servidores MCP para trabajar con datos científicos*. Universidad Carlos III de Madrid. Zenodo.
+
+**Autor:** Pablo Sánchez-Núñez ([ORCID 0000-0001-7845-9506](https://orcid.org/0000-0001-7845-9506)), Universidad Carlos III de Madrid. Texto bajo licencia [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/deed.es); código bajo licencia MIT.
+:::
+
+## Mapa del libro
+
+| Capítulo | Pregunta |
+|---|---|
+| [Python y R en este libro](00-r-en-el-libro.qmd) | ¿Cómo funcionan los ejercicios en el navegador? |
+| [1. Un flujo de trabajo reproducible](01-flujo.qmd) | ¿Cómo organizar un proyecto, versionarlo con Git y fijar sus dependencias? |
+| [2. Python para investigar](02-python.qmd) | ¿Qué necesito de Python y de pandas para trabajar con datos? |
+| [3. ETL](03-etl.qmd) | ¿Cómo extraer, limpiar y cargar datos de forma reproducible? |
+| [4. Consumir API académicas](04-api.qmd) | ¿Cómo descargar datos de OpenAlex o Crossref de forma responsable? |
+| [5. Crear paquetes](05-paquetes.qmd) | ¿Cómo convertir mi código en un paquete de R o de Python citable? |
+| [6. Servidores MCP](06-mcp.qmd) | ¿Cómo conectar mis herramientas de investigación con asistentes de IA, con seguridad? |
+
+Cada capítulo tiene objetivos, glosario, lectura obligatoria con DOI, ejercicios autocorregidos de Python y R, laboratorios, actividades, un reto evaluable y una autoevaluación. Los datos de práctica son un archivo de 62 registros bibliográficos simulados con errores intencionados y una muestra real de 30 trabajos de OpenAlex. Tu progreso se guarda solo en tu navegador.

@@ -1,0 +1,142 @@
+---
+engine: markdown
+---
+
+# Glosario {#sec-glosario}
+
+Términos del libro ordenados por capítulo.
+
+## Flujo de trabajo reproducible
+
+### Reproducibilidad computacional {#gl-reproducibilidad}
+Posibilidad de obtener los mismos resultados con los mismos datos y el mismo código. → [Capítulo 1](01-flujo.qmd)
+
+### Control de versiones {#gl-versiones}
+Registro de los cambios de los archivos de un proyecto, con su autoría y su motivo. → [Capítulo 1](01-flujo.qmd)
+
+### Commit {#gl-commit}
+Instantánea de los cambios en Git, con un mensaje que explica el porqué. → [Capítulo 1](01-flujo.qmd)
+
+### Rama {#gl-rama}
+Línea de trabajo paralela en un repositorio de Git. → [Capítulo 1](01-flujo.qmd)
+
+### Entorno {#gl-entorno}
+Espacio aislado con las dependencias de un proyecto. → [Capítulo 1](01-flujo.qmd)
+
+### Archivo de bloqueo {#gl-bloqueo}
+Archivo que registra las versiones exactas de las dependencias (uv.lock, renv.lock). → [Capítulo 1](01-flujo.qmd)
+
+## Python para investigar
+
+### Lista {#gl-lista}
+Colección ordenada y modificable de elementos en Python. → [Capítulo 2](02-python.qmd)
+
+### Diccionario {#gl-diccionario}
+Colección de pares clave-valor en Python. → [Capítulo 2](02-python.qmd)
+
+### Comprensión de listas {#gl-comprension}
+Expresión que crea una lista transformando o filtrando otra. → [Capítulo 2](02-python.qmd)
+
+### Función {#gl-funcion}
+Bloque de código con nombre que recibe argumentos y devuelve un resultado. → [Capítulo 2](02-python.qmd)
+
+### DataFrame {#gl-dataframe}
+Tabla de datos con columnas de distinto tipo (pandas en Python, data.frame en R). → [Capítulo 2](02-python.qmd)
+
+### Vectorización {#gl-vectorizacion}
+Aplicar una operación a un vector o columna entera sin bucles explícitos. → [Capítulo 2](02-python.qmd)
+
+## ETL
+
+### ETL {#gl-etl}
+Extraer, transformar y cargar datos. → [Capítulo 3](03-etl.qmd)
+
+### Datos tidy {#gl-tidy}
+Datos en los que cada variable es una columna, cada observación una fila y cada unidad una tabla. → [Capítulo 3](03-etl.qmd)
+
+### Expresión regular {#gl-regex}
+Patrón que describe un conjunto de cadenas de texto. → [Capítulo 3](03-etl.qmd)
+
+### Normalización {#gl-normalizacion}
+Llevar valores a un formato único y coherente. → [Capítulo 3](03-etl.qmd)
+
+### Deduplicación {#gl-deduplicacion}
+Detección y eliminación de registros repetidos. → [Capítulo 3](03-etl.qmd)
+
+### SQLite {#gl-sqlite}
+Base de datos relacional que se guarda en un único archivo. → [Capítulo 3](03-etl.qmd)
+
+### Idempotencia {#gl-idempotencia}
+Propiedad de un proceso que da el mismo resultado aunque se ejecute varias veces. → [Capítulo 3](03-etl.qmd)
+
+## API
+
+### API {#gl-api}
+Interfaz que permite a un programa pedir datos o servicios a otro. → [Capítulo 4](04-api.qmd)
+
+### REST {#gl-rest}
+Estilo de API web en el que cada recurso tiene una URL y se usa con métodos HTTP. → [Capítulo 4](04-api.qmd)
+
+### JSON {#gl-json}
+Formato de texto para datos estructurados con objetos y listas. → [Capítulo 4](04-api.qmd)
+
+### Código de estado HTTP {#gl-estado}
+Número que indica el resultado de una petición (200, 404, 429…). → [Capítulo 4](04-api.qmd)
+
+### Paginación {#gl-paginacion}
+División de los resultados de una API en páginas sucesivas. → [Capítulo 4](04-api.qmd)
+
+### Límite de uso {#gl-limite}
+Número máximo de peticiones permitidas en un periodo. → [Capítulo 4](04-api.qmd)
+
+### Clave de API {#gl-clave}
+Credencial que identifica a quien usa una API; se guarda fuera del código. → [Capítulo 4](04-api.qmd)
+
+## Paquetes
+
+### Paquete {#gl-paquete}
+Forma estándar de distribuir código reutilizable con documentación, pruebas y dependencias. → [Capítulo 5](05-paquetes.qmd)
+
+### Compendio de investigación {#gl-compendio}
+Proyecto de análisis organizado como un paquete con datos, código y manuscrito. → [Capítulo 5](05-paquetes.qmd)
+
+### DESCRIPTION {#gl-description}
+Archivo de un paquete de R con sus metadatos y dependencias. → [Capítulo 5](05-paquetes.qmd)
+
+### Prueba unitaria {#gl-prueba}
+Comprobación automática de que una función da el resultado esperado. → [Capítulo 5](05-paquetes.qmd)
+
+### R CMD check {#gl-check}
+Revisión completa de un paquete de R antes de publicarlo. → [Capítulo 5](05-paquetes.qmd)
+
+### pyproject.toml {#gl-pyproject}
+Archivo de metadatos y dependencias de un proyecto de Python. → [Capítulo 5](05-paquetes.qmd)
+
+### Versionado semántico {#gl-semver}
+Numeración MAJOR.MINOR.PATCH según el tipo de cambio. → [Capítulo 5](05-paquetes.qmd)
+
+## MCP
+
+### MCP {#gl-mcp}
+Model Context Protocol: estándar abierto para conectar aplicaciones de IA con herramientas y datos. → [Capítulo 6](06-mcp.qmd)
+
+### Anfitrión, cliente y servidor {#gl-anfitrion}
+La aplicación (anfitrión) mantiene un cliente por cada servidor que ofrece capacidades. → [Capítulo 6](06-mcp.qmd)
+
+### Herramienta (tool) {#gl-tool}
+Función que el modelo puede decidir llamar, con argumentos descritos en JSON Schema. → [Capítulo 6](06-mcp.qmd)
+
+### Recurso (resource) {#gl-resource}
+Datos que la aplicación puede leer, identificados por una URI. → [Capítulo 6](06-mcp.qmd)
+
+### Plantilla (prompt) {#gl-prompt}
+Instrucción predefinida que la persona elige usar. → [Capítulo 6](06-mcp.qmd)
+
+### JSON-RPC {#gl-jsonrpc}
+Protocolo de llamadas remotas con mensajes JSON (id, method, params, result). → [Capítulo 6](06-mcp.qmd)
+
+### Transporte {#gl-transporte}
+Canal de los mensajes MCP: stdio (local) o HTTP (remoto). → [Capítulo 6](06-mcp.qmd)
+
+### Inyección de instrucciones {#gl-inyeccion}
+Ataque en el que un contenido externo incluye órdenes dirigidas al modelo. → [Capítulo 6](06-mcp.qmd)

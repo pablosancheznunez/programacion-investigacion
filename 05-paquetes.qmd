@@ -1,0 +1,275 @@
+---
+engine: markdown
+---
+
+# Capítulo 5. Crear paquetes de R y de Python {#sec-cap5}
+
+::: {.callout-note appearance="default"}
+## Objetivos
+- Entender cuándo merece la pena convertir el código de un proyecto en un paquete.
+- Conocer la estructura de un paquete de R y el flujo con usethis, roxygen2 y testthat.
+- Conocer el equivalente en Python (pyproject.toml, uv, pytest) y cómo publicar y citar el software.
+:::
+
+::: {.callout-note appearance="simple" icon="false"}
+## Glosario del capítulo
+[Paquete](92-glosario.qmd#gl-paquete) · [Compendio de investigación](92-glosario.qmd#gl-compendio) · [DESCRIPTION](92-glosario.qmd#gl-description) · [Prueba unitaria](92-glosario.qmd#gl-prueba) · [R CMD check](92-glosario.qmd#gl-check) · [pyproject.toml](92-glosario.qmd#gl-pyproject) · [Versionado semántico](92-glosario.qmd#gl-semver)
+:::
+
+::: {.callout-tip appearance="simple" icon="false"}
+## Descargas
+[Plantilla de entrega del reto (.qmd)](plantillas/entrega_reto.qmd){.btn .btn-outline-primary .btn-sm download="entrega_reto.qmd"}
+:::
+
+## Lectura obligatoria
+
+::: {.lectura}
+Marwick, B.; Boettiger, C.; Mullen, L. (2018). [Packaging data analytical work reproducibly using R (and friends)](https://doi.org/10.1080/00031305.2017.1375986). *The American Statistician*, 72(1), 80-88.
+:::
+
+## 1. ¿Por qué un paquete?
+
+Un **paquete** es la forma estándar de distribuir código reutilizable con su documentación, sus pruebas y sus dependencias declaradas. Merece la pena cuando:
+
+- Usas las **mismas funciones en varios proyectos** (copiar y pegar acaba en versiones distintas).
+- Quieres que **otras personas** usen tu método.
+- Quieres que el software sea **citable** y reconocido como resultado de investigación.
+
+Marwick, Boettiger y Mullen (2018) van más allá y proponen organizar todo un proyecto de análisis como un **compendio de investigación**: una estructura de paquete que reúne datos, código, documentación y manuscrito, de modo que las herramientas del ecosistema (comprobaciones, pruebas, integración continua) sirvan también para garantizar la reproducibilidad.
+
+## 2. Un paquete de R
+
+```text
+bibliometrica/
+├── DESCRIPTION        nombre, versión, autores (con ORCID), licencia, dependencias
+├── NAMESPACE          qué se exporta (lo genera roxygen2)
+├── R/                 las funciones
+├── man/               la ayuda (la genera roxygen2)
+├── tests/testthat/    las pruebas
+├── vignettes/         tutoriales largos
+├── inst/CITATION      cómo citar el paquete
+└── README.md
+```
+
+El flujo habitual con **usethis** y **devtools**:
+
+```r
+usethis::create_package("~/bibliometrica")
+usethis::use_mit_license()
+usethis::use_r("indice_h")          # crea R/indice_h.R
+usethis::use_testthat()
+usethis::use_test("indice_h")       # crea tests/testthat/test-indice_h.R
+usethis::use_package("jsonlite")    # declara una dependencia
+usethis::use_git(); usethis::use_github()
+devtools::document()                # roxygen2 → man/ y NAMESPACE
+devtools::test()                    # ejecuta las pruebas
+devtools::check()                   # R CMD check: la revisión completa
+```
+
+Una función documentada con **roxygen2** y su prueba con **testthat**:
+
+```r
+#' Índice h de una serie de citas
+#'
+#' @param citas Vector numérico de citas, una por publicación.
+#' @return Un entero: el mayor h tal que h publicaciones tienen al menos h citas.
+#' @examples
+#' indice_h(c(10, 8, 5, 4, 3))
+#' @export
+indice_h <- function(citas) {
+  stopifnot(is.numeric(citas), all(citas >= 0, na.rm = TRUE))
+  citas <- sort(citas[!is.na(citas)], decreasing = TRUE)
+  sum(citas >= seq_along(citas))
+}
+
+# tests/testthat/test-indice_h.R
+test_that("indice_h funciona en casos conocidos", {
+  expect_equal(indice_h(c(10, 8, 5, 4, 3)), 4)
+  expect_equal(indice_h(numeric(0)), 0)
+  expect_error(indice_h(c(-1, 2)))
+})
+```
+
+**R CMD check** revisa la documentación, los ejemplos, las pruebas, las dependencias y docenas de detalles; CRAN exige que pase sin errores ni avisos. Para publicar, las opciones son **CRAN** (revisión estricta, máxima difusión), **R-universe** (publicación inmediata desde GitHub) y la revisión por pares de **rOpenSci** para paquetes científicos. La web de documentación se genera con **pkgdown**.
+
+## 3. Un paquete de Python
+
+```text
+bibliometrica/
+├── pyproject.toml     metadatos, dependencias y sistema de construcción
+├── src/bibliometrica/
+│   ├── __init__.py
+│   └── indices.py
+├── tests/test_indices.py
+└── README.md
+```
+
+```bash
+uv init --package bibliometrica     # crea la estructura con pyproject.toml
+uv add requests                     # dependencia
+uv add --dev pytest                 # dependencia de desarrollo
+uv run pytest                       # pruebas
+uv build                            # construye el paquete
+uv publish                          # publica en PyPI (con un token)
+```
+
+## 4. Versiones, citas y DOI
+
+- **Versionado semántico** (MAJOR.MINOR.PATCH): sube el PATCH al corregir errores, el MINOR al añadir funciones compatibles y el MAJOR al romper la compatibilidad.
+- Añade un **CITATION.cff** (lo leen GitHub y Zenodo) y, en R, `inst/CITATION`.
+- Conecta el repositorio con **Zenodo** para obtener un **DOI** por versión, y cita el software en tus artículos con su versión y su DOI.
+
+## Ejercicios
+
+### Ejercicio 5.1 · Validar las entradas (R) {.unnumbered}
+
+Completa la función para que **rechace** las citas negativas con `stopifnot()`, y comprueba que devuelve el índice h correcto.
+
+```{webr}
+#| exercise: p5_r
+indice_h <- function(citas) {
+  stopifnot(is.numeric(citas), all(citas ______ 0, na.rm = TRUE))
+  citas <- sort(citas[!is.na(citas)], decreasing = TRUE)
+  sum(citas >= seq_along(citas))
+}
+indice_h(c(12, 0, 45, 7, 3, 10, 28, 1))
+```
+
+::: {.hint exercise="p5_r"}
+Las citas deben ser mayores o iguales que cero: `>=`.
+:::
+
+::: {.solution exercise="p5_r"}
+```r
+indice_h <- function(citas) {
+  stopifnot(is.numeric(citas), all(citas >= 0, na.rm = TRUE))
+  citas <- sort(citas[!is.na(citas)], decreasing = TRUE)
+  sum(citas >= seq_along(citas))
+}
+indice_h(c(12, 0, 45, 7, 3, 10, 28, 1))
+```
+:::
+
+```{webr}
+#| exercise: p5_r
+#| check: true
+f <- get0("indice_h", envir = .envir_result, inherits = FALSE)
+ok <- isTRUE(all.equal(as.numeric(.result), 5)) && is.function(f) &&
+  inherits(try(f(c(-1, 2)), silent = TRUE), "try-error") && isTRUE(f(numeric(0)) == 0)
+if (ok) list(correct = TRUE, message = "Correcto: h = 5 y la función rechaza citas negativas.") else
+  list(correct = FALSE, message = "La condición debe ser citas >= 0.")
+```
+
+### Ejercicio 5.2 · Pruebas con assert (Python) {.unnumbered}
+
+Escribe la función `normaliza_doi` para que pasen las tres pruebas. La última línea devuelve `True` si todo va bien.
+
+```{pyodide}
+#| exercise: p5_py
+def normaliza_doi(doi):
+    """Minúsculas, sin espacios, sin prefijo de URL ni 'doi:'."""
+    doi = doi.strip().______()
+    for prefijo in ("https://doi.org/", "doi:"):
+        if doi.startswith(prefijo):
+            doi = doi[len(prefijo):]
+    return doi.strip()
+
+assert normaliza_doi("10.1/ABC") == "10.1/abc"
+assert normaliza_doi(" https://doi.org/10.1/x ") == "10.1/x"
+assert normaliza_doi("DOI: 10.1/Y") == "10.1/y"
+True
+```
+
+::: {.hint exercise="p5_py"}
+Para pasar a minúsculas se usa `.lower()`.
+:::
+
+::: {.solution exercise="p5_py"}
+```python
+def normaliza_doi(doi):
+    """Minúsculas, sin espacios, sin prefijo de URL ni 'doi:'."""
+    doi = doi.strip().lower()
+    for prefijo in ("https://doi.org/", "doi:"):
+        if doi.startswith(prefijo):
+            doi = doi[len(prefijo):]
+    return doi.strip()
+
+assert normaliza_doi("10.1/ABC") == "10.1/abc"
+assert normaliza_doi(" https://doi.org/10.1/x ") == "10.1/x"
+assert normaliza_doi("DOI: 10.1/Y") == "10.1/y"
+True
+```
+En un paquete, estas pruebas irían en `tests/test_doi.py` y se ejecutarían con `uv run pytest`.
+:::
+
+```{pyodide}
+#| exercise: p5_py
+#| check: true
+feedback = {"correct": True, "message": "Correcto: las tres pruebas pasan."} if result is True else {"correct": False, "message": "Alguna prueba falla: pasa el texto a minúsculas con .lower()."}
+feedback
+```
+
+## Actividades
+
+::: {.clasificar #ia-p5-archivo titulo="¿Dónde va cada cosa en un paquete de R?" categorias="DESCRIPTION|R/|tests/testthat/|man/|inst/CITATION"}
+- La lista de dependencias y la licencia → DESCRIPTION
+- El código de la función indice_h → R/
+- expect_equal(indice_h(c(10, 8, 5, 4, 3)), 4) → tests/testthat/
+- La página de ayuda generada por roxygen2 → man/
+- Cómo citar el paquete con su DOI → inst/CITATION
+:::
+
+::: {.ordenar #ia-p5-flujo titulo="Ordena el flujo para crear un paquete de R"}
+1. create_package()
+2. Escribir funciones con documentación roxygen2 en R/
+3. Escribir pruebas con testthat
+4. document() para generar man/ y NAMESPACE
+5. check() hasta que no haya errores ni avisos
+6. Publicar una versión en GitHub con DOI de Zenodo y, si procede, enviar a CRAN
+:::
+
+::: {.clasificar #ia-p5-semver titulo="Versionado semántico: de 1.4.2 a…" categorias="1.4.3|1.5.0|2.0.0"}
+- Corriges un error en el cálculo sin cambiar la interfaz → 1.4.3
+- Añades una función nueva compatible con lo anterior → 1.5.0
+- Cambias el nombre de un argumento y el código antiguo deja de funcionar → 2.0.0
+:::
+
+## Reto evaluable {#reto-p5}
+
+::: {.callout-important appearance="simple" icon="false"}
+## Reto del capítulo 5 · Tu paquete
+1. Convierte las funciones de los capítulos 2-4 en un paquete de R **o** de Python con al menos tres funciones exportadas, documentadas y con pruebas.
+2. Consigue que `devtools::check()` (R) o `uv build` y `pytest` (Python) terminen sin errores.
+3. Añade README, licencia, CITATION.cff e integración continua con GitHub Actions.
+4. Publica la versión 0.1.0 en GitHub y obtén un DOI en Zenodo.
+
+**Entrega:** el enlace al repositorio y el DOI con la [plantilla de entrega](plantillas/entrega_reto.qmd).
+:::
+
+## Autoevaluación
+
+Responde a todas las preguntas y pulsa **Mostrar respuestas**. No cuenta para la nota.
+
+::: {.webex-check .webex-box}
+1. En un paquete de R, las dependencias se declaran en el archivo {{< fitb "DESCRIPTION" ignorecase=true >}}
+2. roxygen2 genera la documentación de `man/` y el archivo NAMESPACE. {{< torf true >}}
+3. Marwick et al. (2018) proponen organizar un proyecto de análisis como un compendio de {{< fitb "investigación" "investigacion" ignorecase=true >}}
+4. La revisión completa de un paquete de R antes de publicarlo se hace con {{< mcq "devtools::test()" "*devtools::check()" "usethis::use_r()" >}}
+5. En Python, los metadatos y las dependencias de un paquete moderno se declaran en {{< mcq "setup.cfg obligatoriamente" "*pyproject.toml" "requirements.txt siempre" >}}
+6. Añadir una función compatible con lo anterior sube la versión MAJOR. {{< torf false >}}
+7. Enlazar GitHub con Zenodo permite obtener un DOI para cada versión del software. {{< torf true >}}
+8. ¿Cuándo merece la pena crear un paquete?
+
+{{< longmcq "Siempre, aunque sea un script de diez líneas" "*Cuando el código se reutiliza en varios proyectos, lo usarán otras personas o quieres que sea citable" "Nunca: es mejor copiar y pegar" >}}
+:::
+
+::: {.webex-solution boton="Ver explicaciones"}
+- Imports, Suggests.
+- Con `devtools::document()`.
+- *Research compendium*.
+- R CMD check.
+- PEP 621.
+- Sube el MINOR.
+- Integración GitHub-Zenodo.
+- Reutilización, difusión, crédito.
+:::

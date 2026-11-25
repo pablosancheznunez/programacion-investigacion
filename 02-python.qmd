@@ -1,0 +1,265 @@
+---
+engine: markdown
+---
+
+# Capítulo 2. Python para investigar {#sec-cap2}
+
+::: {.callout-note appearance="default"}
+## Objetivos
+- Usar los tipos de datos y las estructuras básicas de Python (listas, diccionarios).
+- Escribir funciones documentadas y reutilizables.
+- Leer, filtrar y resumir datos tabulares con pandas.
+:::
+
+::: {.callout-note appearance="simple" icon="false"}
+## Glosario del capítulo
+[Lista](92-glosario.qmd#gl-lista) · [Diccionario](92-glosario.qmd#gl-diccionario) · [Comprensión de listas](92-glosario.qmd#gl-comprension) · [Función](92-glosario.qmd#gl-funcion) · [DataFrame](92-glosario.qmd#gl-dataframe) · [Vectorización](92-glosario.qmd#gl-vectorizacion)
+:::
+
+::: {.callout-tip appearance="simple" icon="false"}
+## Descargas
+[Plantilla de entrega del reto (.qmd)](plantillas/entrega_reto.qmd){.btn .btn-outline-primary .btn-sm download="entrega_reto.qmd"}
+[Datos del libro (.csv)](datos/publicaciones.csv){.btn .btn-outline-primary .btn-sm download="publicaciones.csv"}
+:::
+
+## Lectura obligatoria
+
+::: {.lectura}
+Harris, C. R.; Millman, K. J.; van der Walt, S. J.; Gommers, R.; Virtanen, P. et al. (2020). [Array programming with NumPy](https://doi.org/10.1038/s41586-020-2649-2). *Nature*, 585(7825), 357-362.
+:::
+
+## 1. Lo esencial del lenguaje
+
+Python es un lenguaje de propósito general con un ecosistema enorme para la ciencia: NumPy y pandas para datos, matplotlib para gráficos, scikit-learn para aprendizaje automático, requests para la web. Lo básico:
+
+```{pyodide}
+#| autorun: true
+titulo = "Good enough practices"        # texto (str)
+anio = 2017                              # entero (int)
+citas = [12, 0, 45, 7, 3]                # lista: ordenada y modificable
+articulo = {"titulo": titulo, "anio": anio, "oa": True}   # diccionario: clave → valor
+
+print(titulo.lower(), len(titulo))
+print(citas[0], citas[-1])              # el primer elemento es el 0; el -1 es el último
+print(articulo["anio"])
+[c for c in citas if c > 5]             # comprensión de listas: filtrar
+```
+
+Las **funciones** encapsulan una tarea. Una buena función tiene un nombre que dice qué hace, una documentación breve (*docstring*) y no depende de variables externas:
+
+```{pyodide}
+#| autorun: true
+def normaliza_doi(doi):
+    """Devuelve el DOI en minúsculas y sin prefijos de URL ni 'doi:'."""
+    doi = doi.strip().lower()
+    for prefijo in ("https://doi.org/", "http://dx.doi.org/", "doi:"):
+        if doi.startswith(prefijo):
+            doi = doi[len(prefijo):]
+    return doi.strip()
+
+normaliza_doi("  DOI: 10.1371/Journal.PCBI.1005510")
+```
+
+## 2. Datos tabulares con pandas
+
+**pandas** organiza los datos en un **DataFrame**: una tabla con columnas de distinto tipo, parecida a un `data.frame` de R. Sus operaciones están **vectorizadas**: se aplican a columnas enteras sin escribir bucles, lo que es más claro y más rápido. Esa idea viene de la programación con matrices que Harris et al. (2020) describen para NumPy, la base sobre la que se construye pandas.
+
+```{pyodide}
+#| autorun: true
+import pandas as pd
+pub = pd.read_csv("datos/publicaciones.csv")
+print(pub.shape)                 # filas y columnas
+pub.head(3)
+```
+
+```{pyodide}
+pub = pd.read_csv("datos/publicaciones.csv")
+pub["citas"] = pd.to_numeric(pub["citas"], errors="coerce")   # textos no numéricos → NaN
+resumen = pub.groupby("revista")["citas"].agg(["count", "mean"]).round(1)
+resumen.sort_values("mean", ascending=False)
+```
+
+Los datos tienen problemas a propósito (años como `" 2021"` o `"s.f."`, DOI en varios formatos, duplicados): los limpiaremos en el capítulo 3.
+
+## Ejercicios
+
+### Ejercicio 2.1 · Comprensión de listas {.unnumbered}
+
+Cuenta cuántos artículos de la lista tienen **al menos 10 citas**.
+
+```{pyodide}
+#| exercise: p2_comp
+citas = [12, 0, 45, 7, 3, 10, 28, 1]
+len([c for c in citas if c ______ 10])
+```
+
+::: {.hint exercise="p2_comp"}
+«Al menos 10» es mayor o igual: `>=`.
+:::
+
+::: {.solution exercise="p2_comp"}
+```python
+citas = [12, 0, 45, 7, 3, 10, 28, 1]
+len([c for c in citas if c >= 10])
+```
+Cuatro artículos: 12, 45, 10 y 28.
+:::
+
+```{pyodide}
+#| exercise: p2_comp
+#| check: true
+if result == 4:
+    feedback = {"correct": True, "message": "Correcto: 4 artículos."}
+elif result == 3:
+    feedback = {"correct": False, "message": "Te falta el que tiene exactamente 10: usa >=."}
+else:
+    feedback = {"correct": False, "message": "Revisa la condición."}
+feedback
+```
+
+### Ejercicio 2.2 · Una función {.unnumbered}
+
+Completa la función para que devuelva el **índice h** de una lista de citas: el mayor número h tal que h artículos tienen al menos h citas.
+
+```{pyodide}
+#| exercise: p2_h
+def indice_h(citas):
+    """Calcula el índice h de una lista de citas."""
+    ordenadas = sorted(citas, reverse=True)
+    h = 0
+    for posicion, c in enumerate(ordenadas, start=1):
+        if c >= ______:
+            h = posicion
+    return h
+
+indice_h([12, 0, 45, 7, 3, 10, 28, 1])
+```
+
+::: {.hint exercise="p2_h"}
+El artículo en la posición *p* (ordenados de más a menos citados) cuenta si tiene al menos *p* citas.
+:::
+
+::: {.solution exercise="p2_h"}
+```python
+def indice_h(citas):
+    """Calcula el índice h de una lista de citas."""
+    ordenadas = sorted(citas, reverse=True)
+    h = 0
+    for posicion, c in enumerate(ordenadas, start=1):
+        if c >= posicion:
+            h = posicion
+    return h
+
+indice_h([12, 0, 45, 7, 3, 10, 28, 1])
+```
+h = 5: hay cinco artículos con al menos cinco citas (45, 28, 12, 10, 7).
+:::
+
+```{pyodide}
+#| exercise: p2_h
+#| check: true
+ok = result == 5
+try:
+    f = envir_result["indice_h"]
+    ok = ok and f([10, 8, 5, 4, 3]) == 4 and f([]) == 0 and f([1]) == 1
+except Exception:
+    ok = False
+feedback = {"correct": True, "message": "Correcto: h = 5, y la función supera otras pruebas."} if ok else {"correct": False, "message": "Compara c con la posición."}
+feedback
+```
+
+### Ejercicio 2.3 · pandas {.unnumbered}
+
+¿Cuál es la **mediana de citas** de las publicaciones? Convierte primero la columna a número.
+
+```{pyodide}
+#| exercise: p2_pandas
+#| setup: true
+import pandas as pd
+pub = pd.read_csv("datos/publicaciones.csv")
+```
+
+```{pyodide}
+#| exercise: p2_pandas
+citas = pd.to_numeric(pub["citas"], errors="coerce")
+citas.______()
+```
+
+::: {.hint exercise="p2_pandas"}
+El método de pandas para la mediana se llama igual que en inglés.
+:::
+
+::: {.solution exercise="p2_pandas"}
+```python
+citas = pd.to_numeric(pub["citas"], errors="coerce")
+citas.median()
+```
+Los valores no numéricos («NA», «n/d», vacíos) se convierten en `NaN` y no cuentan.
+:::
+
+```{pyodide}
+#| exercise: p2_pandas
+#| check: true
+import pandas as pd
+esperado = pd.to_numeric(pd.read_csv("datos/publicaciones.csv")["citas"], errors="coerce").median()
+if result == esperado:
+    feedback = {"correct": True, "message": f"Correcto: mediana = {esperado:g} citas."}
+else:
+    feedback = {"correct": False, "message": "Usa .median()."}
+feedback
+```
+
+## Actividades
+
+::: {.clasificar #ia-p2-tipo titulo="¿Qué estructura de Python conviene?" categorias="Lista|Diccionario|DataFrame"}
+- Las citas de cinco artículos, en orden → Lista
+- Los metadatos de un artículo: título, año, revista → Diccionario
+- 10 000 registros bibliográficos con 12 campos → DataFrame
+- La correspondencia entre códigos de país y nombres → Diccionario
+:::
+
+::: {.clasificar #ia-p2-buenas titulo="¿Buena práctica o mala práctica?" categorias="Buena práctica|Mala práctica"}
+- Una función con docstring que hace una sola cosa → Buena práctica
+- Copiar y pegar el mismo bloque de limpieza en cinco scripts → Mala práctica // Mejor una función reutilizable.
+- Usar operaciones vectorizadas de pandas en lugar de bucles fila a fila → Buena práctica
+- Variables llamadas x1, x2, tmp3 → Mala práctica
+:::
+
+## Reto evaluable {#reto-p2}
+
+::: {.callout-important appearance="simple" icon="false"}
+## Reto del capítulo 2 · Tu primer módulo de Python
+1. Escribe un módulo `bibliometria.py` con tres funciones documentadas: `normaliza_doi`, `indice_h` y `resumen_por_anio` (que reciba un DataFrame).
+2. Añade pruebas sencillas con `assert` (o con pytest) para casos normales y extremos (lista vacía, DOI con espacios).
+3. Úsalo en un cuaderno o documento de Quarto con `publicaciones.csv`.
+
+**Entrega:** el enlace al repositorio con la [plantilla de entrega](plantillas/entrega_reto.qmd).
+:::
+
+## Autoevaluación
+
+Responde a todas las preguntas y pulsa **Mostrar respuestas**. No cuenta para la nota.
+
+::: {.webex-check .webex-box}
+1. En Python, el primer elemento de una lista tiene el índice {{< mcq "*0" "1" "-1" >}}
+2. Una estructura de pares clave-valor es un {{< fitb "diccionario" ignorecase=true >}}
+3. El texto que documenta una función dentro de ella se llama {{< fitb "docstring" ignorecase=true >}}
+4. En pandas, aplicar una operación a una columna entera sin bucles se llama {{< mcq "iteración" "*vectorización" "recursión" >}}
+5. `pd.to_numeric(..., errors="coerce")` convierte los valores no numéricos en NaN. {{< torf true >}}
+6. NumPy es una biblioteca para trabajar con matrices y vectores numéricos. {{< torf true >}}
+7. `[c for c in citas if c > 5]` es una comprensión de {{< fitb "listas" "lista" ignorecase=true >}}
+8. ¿Por qué conviene encapsular la limpieza en funciones?
+
+{{< longmcq "Porque el código es más largo" "*Porque se reutiliza, se prueba y se corrige en un solo lugar" "Porque Python lo exige" >}}
+:::
+
+::: {.webex-solution boton="Ver explicaciones"}
+- En R, el primero es el 1.
+- *dict*.
+- Entre triples comillas.
+- Más claro y más rápido.
+- *Not a Number*.
+- Harris et al. (2020).
+- *List comprehension*.
+- No repetir código (Wilson et al., 2017).
+:::

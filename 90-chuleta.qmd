@@ -1,0 +1,70 @@
+---
+engine: markdown
+---
+
+# Chuleta {#sec-chuleta}
+
+## Git
+
+| Tarea | Comando |
+|---|---|
+| Crear un repositorio | `git init` |
+| Ver el estado | `git status` |
+| Preparar y confirmar | `git add archivo` · `git commit -m "mensaje"` |
+| Historial | `git log --oneline --graph` |
+| Nueva rama | `git switch -c nombre` |
+| Integrar una rama | `git switch main` · `git merge nombre` |
+| Subir y bajar | `git push` · `git pull` |
+| Deshacer cambios no confirmados | `git restore archivo` |
+
+## Entornos
+
+| Tarea | Python (uv) | R (renv) |
+|---|---|---|
+| Iniciar | `uv init` | `renv::init()` |
+| Añadir dependencia | `uv add paquete` | `install.packages("paquete")` |
+| Fijar versiones | automático (`uv.lock`) | `renv::snapshot()` |
+| Reproducir | `uv sync` | `renv::restore()` |
+| Ejecutar | `uv run script.py` | `Rscript script.R` |
+
+## Datos
+
+| Tarea | Python (pandas) | R (base / tidyverse) |
+|---|---|---|
+| Leer CSV | `pd.read_csv("f.csv")` | `read.csv("f.csv")` · `readr::read_csv()` |
+| Leer JSON | `json.load(open("f.json"))` | `jsonlite::fromJSON("f.json")` |
+| Filtrar | `df[df["anio"] >= 2020]` | `subset(df, anio >= 2020)` · `dplyr::filter()` |
+| Agrupar y resumir | `df.groupby("x")["y"].mean()` | `aggregate(y ~ x, df, mean)` · `dplyr::summarise()` |
+| Quitar duplicados | `df.drop_duplicates()` | `unique(df)` · `dplyr::distinct()` |
+| Expresión regular | `s.str.extract(r"...")` | `regmatches()` · `stringr::str_extract()` |
+| SQLite | `sqlite3.connect("db.sqlite")` | `DBI::dbConnect(RSQLite::SQLite(), "db.sqlite")` |
+
+## API
+
+| Tarea | Python (requests) | R (httr2) |
+|---|---|---|
+| Petición GET | `requests.get(url, params=p, timeout=30)` | `request(url) \|> req_url_query(...) \|> req_perform()` |
+| JSON de la respuesta | `r.json()` | `resp_body_json(resp)` |
+| Error si falla | `r.raise_for_status()` | por defecto en `req_perform()` |
+| Reintentos | bucle con `time.sleep()` | `req_retry()` |
+| Clave desde el entorno | `os.environ["CLAVE"]` | `Sys.getenv("CLAVE")` |
+
+## Paquetes
+
+| Tarea | R | Python |
+|---|---|---|
+| Crear | `usethis::create_package()` | `uv init --package` |
+| Documentar | roxygen2 + `devtools::document()` | *docstrings* (+ mkdocs o Sphinx) |
+| Probar | testthat + `devtools::test()` | pytest + `uv run pytest` |
+| Revisar | `devtools::check()` | `uv build` + pruebas |
+| Publicar | CRAN, R-universe | PyPI (`uv publish`) |
+| Citar | `inst/CITATION`, CITATION.cff, Zenodo | CITATION.cff, Zenodo |
+
+## MCP
+
+| Tarea | Python | R |
+|---|---|---|
+| Paquete | `mcp` (SDK oficial) | `mcptools` + `ellmer` |
+| Definir herramienta | `@mcp.tool()` | `ellmer::tool()` |
+| Lanzar servidor | `mcp.run()` | `mcptools::mcp_server(tools = ...)` |
+| Probar | `mcp dev servidor.py` (Inspector) | Inspector con `Rscript servidor.R` |

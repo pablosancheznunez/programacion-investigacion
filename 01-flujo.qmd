@@ -1,0 +1,256 @@
+---
+engine: markdown
+---
+
+# Capítulo 1. Un flujo de trabajo reproducible {#sec-cap1}
+
+::: {.callout-note appearance="default"}
+## Objetivos
+- Organizar un proyecto de investigación para que otra persona (o tú dentro de un año) pueda reproducirlo.
+- Usar Git para el control de versiones y GitHub para colaborar y publicar.
+- Gestionar entornos y dependencias en Python y en R.
+:::
+
+::: {.callout-note appearance="simple" icon="false"}
+## Glosario del capítulo
+[Reproducibilidad computacional](92-glosario.qmd#gl-reproducibilidad) · [Control de versiones](92-glosario.qmd#gl-versiones) · [Commit](92-glosario.qmd#gl-commit) · [Rama](92-glosario.qmd#gl-rama) · [Entorno](92-glosario.qmd#gl-entorno) · [Archivo de bloqueo](92-glosario.qmd#gl-bloqueo)
+:::
+
+::: {.callout-tip appearance="simple" icon="false"}
+## Descargas
+[Plantilla de entrega del reto (.qmd)](plantillas/entrega_reto.qmd){.btn .btn-outline-primary .btn-sm download="entrega_reto.qmd"}
+[Datos del libro (.csv)](datos/publicaciones.csv){.btn .btn-outline-primary .btn-sm download="publicaciones.csv"}
+:::
+
+## Lectura obligatoria
+
+::: {.lectura}
+Wilson, G.; Bryan, J.; Cranston, K.; Kitzes, J.; Nederbragt, L.; Teal, T. K. (2017). [Good enough practices in scientific computing](https://doi.org/10.1371/journal.pcbi.1005510). *PLOS Computational Biology*, 13(6), e1005510.
+:::
+
+### Lectura complementaria {.unnumbered}
+
+- Blischak, J. D.; Davenport, E. R.; Wilson, G. (2016). [A quick introduction to version control with Git and GitHub](https://doi.org/10.1371/journal.pcbi.1004668). *PLOS Computational Biology*, 12(1), e1004668.
+
+## 1. Prácticas «suficientemente buenas»
+
+Wilson et al. (2017) proponen un conjunto mínimo de prácticas que cualquier investigador puede adoptar, aunque no sea programador profesional. Las agrupan en seis áreas:
+
+| Área | Prácticas clave |
+|---|---|
+| **Gestión de datos** | Guardar los datos brutos sin tocar; crear los datos analizados con código; usar formatos abiertos; dar identificadores únicos; depositar los datos con un DOI |
+| **Software** | Comentarios y documentación breves; descomponer en funciones; no repetir código; usar bibliotecas existentes; nombres descriptivos |
+| **Colaboración** | Un archivo `README`; una lista de tareas; una licencia; una forma acordada de comunicarse |
+| **Organización del proyecto** | Una carpeta por proyecto con subcarpetas estándar; nombres de archivo que indiquen contenido |
+| **Seguimiento de cambios** | Copias de seguridad automáticas; control de versiones; cambios pequeños y frecuentes |
+| **Manuscritos** | Texto en formatos que permitan seguir cambios; referencias gestionadas |
+
+Una estructura de proyecto sencilla y suficiente:
+
+```text
+mi-proyecto/
+├── README.md          qué es, cómo reproducirlo, licencia, cita
+├── datos/
+│   ├── brutos/        tal como llegaron (nunca se editan a mano)
+│   └── procesados/    generados por el código
+├── codigo/            scripts y funciones
+├── resultados/        figuras y tablas generadas
+├── documentos/        manuscrito (por ejemplo, en Quarto)
+├── pyproject.toml     o renv.lock: dependencias
+└── .gitignore         lo que no entra en Git
+```
+
+## 2. Git y GitHub
+
+El **control de versiones** registra cada cambio de los archivos del proyecto, quién lo hizo y por qué, y permite volver atrás. **Git** es el sistema más usado; **GitHub** (o GitLab, Codeberg) alojan los repositorios en línea para colaborar y publicar.
+
+Los conceptos básicos:
+
+- Un **repositorio** es la carpeta del proyecto con su historial.
+- Un ***commit*** es una instantánea de los cambios con un mensaje que explica el porqué.
+- Una **rama** es una línea de trabajo paralela; se integra con un *merge* o, en GitHub, con una ***pull request***.
+- `.gitignore` indica qué no se versiona: datos personales, archivos enormes, contraseñas y claves de API, resultados que se regeneran.
+
+```bash
+git init                         # crear el repositorio
+git add codigo/limpieza.py       # preparar un cambio
+git commit -m "Normaliza los DOI antes de deduplicar"
+git log --oneline                # ver el historial
+git switch -c analisis-bayes     # nueva rama
+git push origin main             # subir a GitHub
+```
+
+Y una conexión con el resto del libro: si enlazas el repositorio con **Zenodo**, cada versión publicada (*release*) en GitHub recibe automáticamente un **DOI** citable. Así se publicaron los libros de esta colección.
+
+## 3. Entornos y dependencias
+
+El código que funciona hoy puede fallar mañana porque cambió una biblioteca. Un **entorno** aísla las dependencias de cada proyecto, y un **archivo de bloqueo** registra las versiones exactas:
+
+| | Python | R |
+|---|---|---|
+| Crear el entorno | `uv init` | `renv::init()` |
+| Añadir una dependencia | `uv add pandas` | `install.packages("dplyr")` |
+| Registrar versiones | `uv.lock` (automático) | `renv::snapshot()` → `renv.lock` |
+| Reproducir en otro ordenador | `uv sync` | `renv::restore()` |
+
+## Laboratorio: ¿qué va en Git? {#lab-p1-gitignore}
+
+::: {.laboratorio}
+::: {.laboratorio-etiqueta}
+Laboratorio · se ejecuta en tu navegador
+:::
+
+Marca qué tiene tu proyecto y el laboratorio genera un `.gitignore` con explicaciones.
+
+```{ojs}
+//| echo: false
+casilla = window.Lab.casilla
+viewof g_py = casilla("Código de Python", {value: true})
+viewof g_r = casilla("Código de R", {value: true})
+viewof g_env = casilla("Claves de API o contraseñas en un archivo .env", {value: true})
+viewof g_pers = casilla("Datos con información personal", {value: false})
+viewof g_big = casilla("Archivos de datos muy grandes (más de 50 MB)", {value: false})
+viewof g_quarto = casilla("Documentos de Quarto", {value: true})
+```
+
+```{ojs}
+//| echo: false
+{
+  const b = [];
+  b.push(["# Sistema y editores", ".DS_Store\nThumbs.db\n.vscode/\n.idea/"]);
+  if (g_py) b.push(["# Python: entornos y cachés (se regeneran)", ".venv/\n__pycache__/\n*.pyc\n.ipynb_checkpoints/"]);
+  if (g_r) b.push(["# R: historial y cachés de renv (renv.lock sí se versiona)", ".Rhistory\n.RData\n.Rproj.user/\nrenv/library/"]);
+  if (g_env) b.push(["# Secretos: NUNCA en Git", ".env\n*.key\nsecrets.*"]);
+  if (g_pers) b.push(["# Datos personales: fuera del repositorio (y del ordenador si no están protegidos)", "datos/brutos/personales/"]);
+  if (g_big) b.push(["# Datos grandes: deposítalos en Zenodo u otro repositorio y descárgalos con código", "datos/brutos/*.parquet\ndatos/brutos/*.zip"]);
+  if (g_quarto) b.push(["# Quarto: salidas generadas", "_site/\n_book/\n/.quarto/\n*_files/"]);
+  const txt = b.map(([c, l]) => c + "\n" + l).join("\n\n");
+  const d = html`<div role="status"><pre><code></code></pre></div>`;
+  d.querySelector("code").textContent = txt;
+  if (g_env) d.append(html`<p class="lab-medio" style="font-weight:600">Si una clave llega a subirse a GitHub, borrarla del archivo no basta: revócala y genera una nueva.</p>`);
+  return d;
+}
+```
+:::
+
+## Ejercicios
+
+### Ejercicio 1.1 · Python {.unnumbered}
+
+Los nombres de archivo con fechas en formato ISO 8601 (`AAAA-MM-DD`) se ordenan solos. Construye el nombre `2026-03-07_encuesta.csv` a partir de las variables.
+
+```{pyodide}
+#| exercise: p1_nombre
+anio, mes, dia = 2026, 3, 7
+f"{anio}-{mes:02d}-{______:02d}_encuesta.csv"
+```
+
+::: {.hint exercise="p1_nombre"}
+`{dia:02d}` escribe el número con dos cifras, rellenando con un cero.
+:::
+
+::: {.solution exercise="p1_nombre"}
+```python
+anio, mes, dia = 2026, 3, 7
+f"{anio}-{mes:02d}-{dia:02d}_encuesta.csv"
+```
+:::
+
+```{pyodide}
+#| exercise: p1_nombre
+#| check: true
+if result == "2026-03-07_encuesta.csv":
+    feedback = {"correct": True, "message": "Correcto: 2026-03-07_encuesta.csv"}
+else:
+    feedback = {"correct": False, "message": "Revisa el formato: debe quedar 2026-03-07_encuesta.csv"}
+feedback
+```
+
+### Ejercicio 1.2 · R {.unnumbered}
+
+Haz lo mismo en R con `sprintf()`.
+
+```{webr}
+#| exercise: p1_nombre_r
+anio <- 2026; mes <- 3; dia <- 7
+sprintf("%d-%02d-%02d_encuesta.csv", anio, mes, ______)
+```
+
+::: {.hint exercise="p1_nombre_r"}
+El tercer `%02d` corresponde al día.
+:::
+
+::: {.solution exercise="p1_nombre_r"}
+```r
+anio <- 2026; mes <- 3; dia <- 7
+sprintf("%d-%02d-%02d_encuesta.csv", anio, mes, dia)
+```
+:::
+
+```{webr}
+#| exercise: p1_nombre_r
+#| check: true
+if (identical(.result, "2026-03-07_encuesta.csv")) list(correct = TRUE, message = "Correcto.") else
+  list(correct = FALSE, message = "Debe quedar 2026-03-07_encuesta.csv")
+```
+
+## Actividades
+
+::: {.ordenar #ia-p1-git titulo="Ordena un ciclo de trabajo con Git y GitHub"}
+1. Crear una rama para el cambio
+2. Editar los archivos
+3. Añadir los cambios con git add
+4. Hacer commit con un mensaje que explique el porqué
+5. Subir la rama con git push
+6. Abrir una pull request y revisarla
+7. Integrar en la rama principal
+:::
+
+::: {.clasificar #ia-p1-versionar titulo="¿Se versiona en Git?" categorias="Sí, en Git|No, fuera de Git"}
+- El script de limpieza de datos → Sí, en Git
+- El archivo .env con la clave de la API → No, fuera de Git // Los secretos nunca van al repositorio.
+- renv.lock o uv.lock → Sí, en Git // Permiten reproducir el entorno.
+- La carpeta .venv con las bibliotecas instaladas → No, fuera de Git // Se regenera con uv sync.
+- El README → Sí, en Git
+- Una base de datos de 2 GB → No, fuera de Git // Mejor en un repositorio de datos con DOI.
+:::
+
+## Reto evaluable {#reto-p1}
+
+::: {.callout-important appearance="simple" icon="false"}
+## Reto del capítulo 1 · Un proyecto reproducible
+1. Crea un repositorio en GitHub con la estructura del capítulo, un `README`, una licencia y un `.gitignore`.
+2. Añade un script que lea `publicaciones.csv` y produzca una tabla resumen, con el entorno registrado (`uv.lock` o `renv.lock`).
+3. Haz al menos cinco *commits* con mensajes claros y una *pull request* desde una rama.
+4. Comprueba la reproducibilidad: clona el repositorio en otra carpeta y ejecútalo desde cero.
+
+**Entrega:** el enlace al repositorio con la [plantilla de entrega](plantillas/entrega_reto.qmd).
+:::
+
+## Autoevaluación
+
+Responde a todas las preguntas y pulsa **Mostrar respuestas**. No cuenta para la nota.
+
+::: {.webex-check .webex-box}
+1. Según Wilson et al. (2017), los datos brutos deben editarse a mano para corregirlos. {{< torf false >}}
+2. Una instantánea de los cambios con un mensaje en Git es un {{< fitb "commit" ignorecase=true >}}
+3. Las claves de API deben guardarse {{< mcq "en el código, para no perderlas" "*en variables de entorno o en un .env excluido de Git" "en el README" >}}
+4. El archivo que registra las versiones exactas de las dependencias es el archivo de {{< fitb "bloqueo" ignorecase=true >}}
+5. En R, `renv::restore()` reproduce el entorno de otro ordenador. {{< torf true >}}
+6. Enlazar GitHub con Zenodo permite obtener {{< mcq "más estrellas" "*un DOI para cada versión" "una licencia" >}}
+7. Los nombres de archivo con fechas en formato ISO 8601 se ordenan cronológicamente al ordenarlos alfabéticamente. {{< torf true >}}
+8. ¿Qué hacer si una clave de API se ha subido por error a GitHub?
+
+{{< longmcq "Borrarla del archivo y hacer commit" "*Revocarla y generar una nueva, además de quitarla del repositorio" "Nada, si el repositorio es privado" >}}
+:::
+
+::: {.webex-solution boton="Ver explicaciones"}
+- Se generan los procesados con código.
+- Con un mensaje que explica el porqué.
+- Nunca en el repositorio.
+- *Lock file*.
+- `uv sync` en Python.
+- Integración GitHub-Zenodo.
+- AAAA-MM-DD.
+- El historial conserva la clave.
+:::

@@ -1,0 +1,113 @@
+---
+engine: markdown
+---
+
+# Python y R en este libro {#sec-r .unnumbered}
+
+Los capítulos tienen ejercicios de **Python** y de **R** que se ejecutan **en tu navegador**, sin instalar nada: Python funciona con [Pyodide](https://pyodide.org) y R con [webR](https://docs.r-wasm.org/webr/latest/), dos versiones de los lenguajes compiladas a WebAssembly. La primera vez que abres una página, el navegador descarga el motor correspondiente (unos segundos; luego queda en la caché).
+
+::: {.callout-note appearance="default"}
+## Objetivos
+- Ejecutar y modificar código de Python y de R en el navegador.
+- Reconocer las equivalencias básicas entre los dos lenguajes.
+:::
+
+## Cómo funcionan las celdas
+
+Cada bloque tiene un botón **Run Code**. Puedes cambiar el código y volver a ejecutarlo; **Start Over** recupera la versión original. Los ejercicios tienen **Show Hint** (pista) y, en el libro, una solución desplegable; al pulsar **Run Code** recibes una corrección automática.
+
+Python:
+
+```{pyodide}
+#| autorun: true
+citas = [12, 0, 45, 7, 3]          # una lista
+print(sum(citas), len(citas))      # total y número de elementos
+sum(citas) / len(citas)            # media: el último valor se muestra
+```
+
+R:
+
+```{webr}
+#| autorun: true
+citas <- c(12, 0, 45, 7, 3)        # un vector
+sum(citas); length(citas)
+mean(citas)
+```
+
+| Tarea | Python | R |
+|---|---|---|
+| Asignar | `x = 5` | `x <- 5` |
+| Colección | `[1, 2, 3]` (lista) | `c(1, 2, 3)` (vector) |
+| Diccionario o lista con nombres | `{"a": 1}` | `list(a = 1)` |
+| Función | `def f(x): return x * 2` | `f <- function(x) x * 2` |
+| Índice del primer elemento | `x[0]` | `x[1]` |
+| Tabla de datos | `pandas.DataFrame` | `data.frame` |
+| Leer un CSV | `pd.read_csv("f.csv")` | `read.csv("f.csv")` |
+
+### Ejercicio 1 · Python {.unnumbered}
+
+Calcula el número medio de citas de la lista.
+
+```{pyodide}
+#| exercise: py_media
+citas = [12, 0, 45, 7, 3]
+sum(citas) / ______
+```
+
+::: {.hint exercise="py_media"}
+`len()` devuelve el número de elementos de una lista.
+:::
+
+::: {.solution exercise="py_media"}
+```python
+citas = [12, 0, 45, 7, 3]
+sum(citas) / len(citas)
+```
+13,4 citas de media.
+:::
+
+```{pyodide}
+#| exercise: py_media
+#| check: true
+if result == 13.4:
+    feedback = {"correct": True, "message": "Correcto: 67 / 5 = 13,4."}
+else:
+    feedback = {"correct": False, "message": "Divide la suma entre len(citas)."}
+feedback
+```
+
+### Ejercicio 2 · R {.unnumbered}
+
+Haz lo mismo en R.
+
+```{webr}
+#| exercise: r_media
+citas <- c(12, 0, 45, 7, 3)
+______(citas)
+```
+
+::: {.hint exercise="r_media"}
+La media en R se calcula con `mean()`.
+:::
+
+::: {.solution exercise="r_media"}
+```r
+citas <- c(12, 0, 45, 7, 3)
+mean(citas)
+```
+:::
+
+```{webr}
+#| exercise: r_media
+#| check: true
+if (isTRUE(all.equal(as.numeric(.result), 13.4))) list(correct = TRUE, message = "Correcto: 13,4.") else
+  list(correct = FALSE, message = "Usa mean().")
+```
+
+## Trabajar en tu ordenador
+
+Para proyectos reales necesitarás los lenguajes instalados:
+
+- **Python**: instala [uv](https://docs.astral.sh/uv/), que gestiona versiones de Python, entornos y dependencias con una sola herramienta (`uv init`, `uv add pandas`, `uv run script.py`).
+- **R**: instala R desde [CRAN](https://cran.r-project.org) y un editor (RStudio, Positron o VS Code).
+- **Git** para el control de versiones (capítulo 1) y **Quarto** para documentos reproducibles.

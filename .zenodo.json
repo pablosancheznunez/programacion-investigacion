@@ -1,0 +1,35 @@
+{
+  "title": "Programación para la investigación",
+  "upload_type": "publication",
+  "publication_type": "book",
+  "description": "<p>Libro abierto e interactivo para doctorandos y personal investigador sobre programación aplicada a la investigación: flujo de trabajo reproducible con Git, Python para investigar, procesos ETL (extraer, transformar y cargar datos), consumo de API académicas (OpenAlex, Crossref), creación de paquetes de R y Python, y servidores MCP para conectar herramientas de investigación con asistentes de inteligencia artificial. Los ejercicios de Python y R se ejecutan en el navegador.</p>",
+  "creators": [
+    {
+      "name": "Sánchez-Núñez, Pablo",
+      "affiliation": "Universidad Carlos III de Madrid",
+      "orcid": "0000-0001-7845-9506"
+    }
+  ],
+  "license": "cc-by-4.0",
+  "language": "spa",
+  "access_right": "open",
+  "keywords": [
+    "programación",
+    "Python",
+    "R",
+    "ETL",
+    "API",
+    "paquetes de R",
+    "Model Context Protocol",
+    "MCP",
+    "reproducibilidad",
+    "ciencia abierta"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://pablosancheznunez.com/programacion-investigacion/",
+      "relation": "isAlternateIdentifier",
+      "scheme": "url"
+    }
+  ]
+}

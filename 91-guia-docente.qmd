@@ -1,0 +1,46 @@
+---
+engine: markdown
+---
+
+# Guía para el profesorado {#sec-guia}
+
+El libro sirve como manual de un curso de doctorado de unas 24-30 horas (seis sesiones prácticas más trabajo autónomo) o como material de autoaprendizaje. No exige experiencia previa en programación, aunque se aprovecha mejor con nociones básicas de R o de Python.
+
+## Propuesta de evaluación
+
+| Actividad | Peso orientativo |
+|---|---|
+| Retos evaluables (elegir 4 de 6) | 60 % |
+| Proyecto final: repositorio con ETL, API y paquete o servidor MCP, con DOI | 30 % |
+| Autoevaluaciones | 10 % |
+
+La rúbrica común valora que funcione y sea correcto (30 %), la reproducibilidad (25 %), la calidad del código (20 %), la documentación (15 %) y la reflexión (10 %).
+
+## Ejercicios en el navegador
+
+Los ejercicios de Python usan **Pyodide** y los de R **webR**, alojados en el propio sitio (no dependen de servidores externos). La primera carga de Python tarda algo más porque descarga pandas. Los ejercicios se corrigen automáticamente al pulsar **Run Code**. Dos laboratorios consultan API en directo (OpenAlex y Crossref) y necesitan conexión; el resto funciona sin ella.
+
+## Laboratorios y actividades
+
+Laboratorios: generador de `.gitignore`, probador de expresiones regulares para DOI, consulta en directo a OpenAlex y servidor MCP simulado con llamada real a Crossref. Escenario: inyección de instrucciones en un servidor MCP. En el PDF y el EPUB, las actividades aparecen en papel con su solución.
+
+## Recomendaciones
+
+- Pide que todos los retos se entreguen como **repositorios públicos o privados** con historial de *commits*: el historial muestra el proceso.
+- El uso de asistentes de IA para programar es habitual: pide en la entrega la declaración de uso de IA (incluida en la plantilla) y valora que el estudiante entienda y pruebe el código.
+- Para el capítulo 6, insiste en el análisis de riesgos antes que en la cantidad de herramientas.
+
+## Autoevaluación en Aula Global y diapositivas
+
+Las preguntas están exportadas a **Moodle XML** en `moodle/`. Las diapositivas de cada capítulo están en [diapositivas/](diapositivas/index.html){target="_blank"}.
+
+## Mantenimiento
+
+```bash
+python3 herramientas/preparar.py
+python3 herramientas/moodle.py
+python3 herramientas/figuras.py
+python3 herramientas/pdf.py
+quarto render
+python3 herramientas/diapositivas.py
+```

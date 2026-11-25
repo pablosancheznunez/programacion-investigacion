@@ -1,0 +1,317 @@
+---
+engine: markdown
+---
+
+# Capítulo 4. Consumir API académicas {#sec-cap4}
+
+::: {.callout-note appearance="default"}
+## Objetivos
+- Entender cómo funcionan las API web: peticiones HTTP, parámetros, respuestas JSON y códigos de estado.
+- Consultar API académicas abiertas (OpenAlex, Crossref) con Python y R.
+- Programar descargas responsables: paginación, límites de uso, caché, gestión de errores y claves.
+:::
+
+::: {.callout-note appearance="simple" icon="false"}
+## Glosario del capítulo
+[API](92-glosario.qmd#gl-api) · [REST](92-glosario.qmd#gl-rest) · [JSON](92-glosario.qmd#gl-json) · [Código de estado HTTP](92-glosario.qmd#gl-estado) · [Paginación](92-glosario.qmd#gl-paginacion) · [Límite de uso](92-glosario.qmd#gl-limite) · [Clave de API](92-glosario.qmd#gl-clave)
+:::
+
+::: {.callout-tip appearance="simple" icon="false"}
+## Descargas
+[Plantilla de entrega del reto (.qmd)](plantillas/entrega_reto.qmd){.btn .btn-outline-primary .btn-sm download="entrega_reto.qmd"}
+[Muestra de OpenAlex (.json)](datos/openalex_muestra.json){.btn .btn-outline-primary .btn-sm download="openalex_muestra.json"}
+:::
+
+## Lectura obligatoria
+
+::: {.lectura}
+Priem, J.; Piwowar, H.; Orr, R. (2022). [OpenAlex: A fully-open index of scholarly works, authors, venues, institutions, and concepts](https://doi.org/10.48550/arXiv.2205.01833). *arXiv*, 2205.01833.
+:::
+
+## 1. Cómo funciona una API web
+
+Una **API** (*application programming interface*) web permite que un programa pida datos a un servidor. La mayoría de las API académicas siguen el estilo **REST**: cada recurso tiene una URL y se pide con el método HTTP `GET`; la respuesta suele venir en **JSON**.
+
+```text
+GET https://api.openalex.org/works?filter=publication_year:2024,is_oa:true&search=research%20software&per_page=25
+     └──────── base ─────────┘└ ruta ┘└───────────────────── parámetros ───────────────────────────────┘
+```
+
+| Código de estado | Significa | Qué hacer |
+|---|---|---|
+| **200** | Correcto | Procesar la respuesta |
+| **400** | Petición mal formada | Revisar los parámetros |
+| **401 / 403** | Sin autorización | Revisar la clave de API o los permisos |
+| **404** | No existe | Comprobar el identificador |
+| **429** | Demasiadas peticiones | Esperar y reintentar más despacio |
+| **500-503** | Error del servidor | Reintentar más tarde con espera creciente |
+
+## 2. API académicas abiertas
+
+- **OpenAlex** (Priem et al., 2022): índice abierto (CC0) de trabajos, autores, fuentes, instituciones y temas, con una API gratuita. Sustituto abierto de las bases de datos comerciales para muchos análisis bibliométricos.
+- **Crossref**: metadatos de los DOI registrados por las editoriales, incluidas las referencias y las financiaciones cuando se depositan.
+- **ORCID**, **DataCite** (DOI de datos y software), **Europe PMC**, **arXiv**, **Zenodo**…
+
+Las condiciones de uso (límites, necesidad de clave o de identificarse con un correo) cambian con el tiempo: **lee siempre la documentación vigente** de cada API antes de lanzar descargas masivas.
+
+## 3. Descargar de forma responsable
+
+- **Paginación**: las API devuelven los resultados por páginas. OpenAlex permite paginar por número de página o, para conjuntos grandes, con un **cursor** (`cursor=*` y después el valor de `meta.next_cursor`).
+- **Límites de uso**: respeta el número de peticiones por segundo y por día; añade pausas (`time.sleep`, `Sys.sleep`) y reintentos con espera creciente ante un 429.
+- **Caché**: guarda las respuestas en disco y no repitas peticiones que ya tienes. Además, documenta la **fecha de descarga**: los datos cambian.
+- **Claves de API**: en variables de entorno, nunca en el código (capítulo 1).
+- **Identifícate**: muchas API piden un correo en un parámetro o en la cabecera `User-Agent` para contactarte si hay problemas.
+
+En Python, con requests:
+
+```python
+import os, time, requests
+
+def openalex(params, max_paginas=5):
+    """Descarga trabajos de OpenAlex paginando con cursor."""
+    url, cursor, todos = "https://api.openalex.org/works", "*", []
+    for _ in range(max_paginas):
+        r = requests.get(url, params={**params, "cursor": cursor, "per_page": 200},
+                         headers={"User-Agent": f"mi-proyecto (mailto:{os.environ['MI_CORREO']})"},
+                         timeout=30)
+        if r.status_code == 429:
+            time.sleep(10); continue
+        r.raise_for_status()
+        datos = r.json()
+        todos += datos["results"]
+        cursor = datos["meta"].get("next_cursor")
+        if not cursor:
+            break
+        time.sleep(0.2)
+    return todos
+```
+
+En R, con httr2:
+
+```r
+library(httr2)
+resp <- request("https://api.openalex.org/works") |>
+  req_url_query(filter = "publication_year:2024,is_oa:true", search = "research software") |>
+  req_user_agent(paste0("mi-proyecto (mailto:", Sys.getenv("MI_CORREO"), ")")) |>
+  req_retry(max_tries = 3) |>
+  req_perform()
+datos <- resp_body_json(resp)
+```
+
+## Laboratorio: consulta OpenAlex en directo {#lab-p4-openalex}
+
+::: {.laboratorio}
+::: {.laboratorio-etiqueta}
+Laboratorio · consulta en directo la API pública de OpenAlex desde tu navegador
+:::
+
+Construye la consulta y observa la URL, el número de resultados y los primeros trabajos. Necesita conexión a internet.
+
+```{ojs}
+//| echo: false
+texto = window.Lab.texto
+rango = window.Lab.rango
+casilla = window.Lab.casilla
+viewof q_busca = texto("Búsqueda (título, resumen y texto)", {value: "research software", submit: "Consultar"})
+viewof q_desde = rango("Desde el año", [2000, 2026], {value: 2020})
+viewof q_oa = casilla("Solo acceso abierto", {value: true})
+```
+
+```{ojs}
+//| echo: false
+{
+  const filtros = [`from_publication_date:${q_desde}-01-01`, "type:article"].concat(q_oa ? ["is_oa:true"] : []).join(",");
+  const url = `https://api.openalex.org/works?search=${encodeURIComponent(q_busca)}&filter=${filtros}&sort=cited_by_count:desc&per_page=5&select=title,publication_year,cited_by_count,doi`;
+  const d = html`<div role="status"><p><strong>URL:</strong> <code style="word-break:break-all">${url}</code></p><p>Consultando…</p></div>`;
+  const esc = s => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  try {
+    const r = await fetch(url);
+    const j = await r.json();
+    d.lastElementChild.remove();
+    d.insertAdjacentHTML("beforeend", `<p>Código de estado <strong>${r.status}</strong> · <strong>${(j.meta?.count ?? 0).toLocaleString("es-ES")}</strong> trabajos encontrados. Los cinco más citados:</p>
+      <ol>${(j.results || []).map(w => `<li>${esc(w.title)} (${w.publication_year}) · ${w.cited_by_count} citas${w.doi ? ` · <a href="${esc(w.doi)}">${esc(w.doi.replace("https://doi.org/", ""))}</a>` : ""}</li>`).join("")}</ol>
+      <p class="small">Prueba a añadir <code>&amp;group_by=publication_year</code> a la URL en otra pestaña: OpenAlex devuelve recuentos agregados sin descargar los trabajos.</p>`);
+  } catch (e) {
+    d.lastElementChild.outerHTML = '<p class="lab-medio" style="font-weight:600">No se pudo conectar con OpenAlex (¿sin conexión?). Practica con la muestra guardada en los ejercicios.</p>';
+  }
+  return d;
+}
+```
+:::
+
+## Ejercicios
+
+### Ejercicio 4.1 · Construir la URL (Python) {.unnumbered}
+
+Usa `urllib.parse.urlencode` para codificar los parámetros. ¿Cómo queda codificado el espacio de la búsqueda?
+
+```{pyodide}
+#| exercise: p4_url
+from urllib.parse import urlencode
+params = {"search": "open science", "filter": "publication_year:2024", "per_page": 25}
+url = "https://api.openalex.org/works?" + ______(params)
+url
+```
+
+::: {.hint exercise="p4_url"}
+Llama a la función que has importado: `urlencode(params)`.
+:::
+
+::: {.solution exercise="p4_url"}
+```python
+from urllib.parse import urlencode
+params = {"search": "open science", "filter": "publication_year:2024", "per_page": 25}
+url = "https://api.openalex.org/works?" + urlencode(params)
+url
+```
+El espacio se codifica como `+` y los dos puntos como `%3A`. Nunca construyas las URL concatenando texto a mano.
+:::
+
+```{pyodide}
+#| exercise: p4_url
+#| check: true
+from urllib.parse import urlencode
+esp = "https://api.openalex.org/works?" + urlencode({"search": "open science", "filter": "publication_year:2024", "per_page": 25})
+feedback = {"correct": True, "message": "Correcto: search=open+science y filter=publication_year%3A2024."} if result == esp else {"correct": False, "message": "Usa urlencode(params)."}
+feedback
+```
+
+### Ejercicio 4.2 · Procesar la respuesta (Python) {.unnumbered}
+
+La muestra guardada tiene la misma estructura que una respuesta de OpenAlex. ¿Cuántos trabajos tienen **al menos 100 citas**?
+
+```{pyodide}
+#| exercise: p4_json
+#| setup: true
+import json
+with open("datos/openalex_muestra.json", encoding="utf-8") as f:
+    respuesta = json.load(f)
+```
+
+```{pyodide}
+#| exercise: p4_json
+trabajos = respuesta["______"]
+sum(1 for w in trabajos if w["cited_by_count"] >= 100)
+```
+
+::: {.hint exercise="p4_json"}
+En las respuestas de OpenAlex, la lista de trabajos está en la clave `results`; los metadatos de la consulta, en `meta`.
+:::
+
+::: {.solution exercise="p4_json"}
+```python
+trabajos = respuesta["results"]
+sum(1 for w in trabajos if w["cited_by_count"] >= 100)
+```
+:::
+
+```{pyodide}
+#| exercise: p4_json
+#| check: true
+import json
+r = json.load(open("datos/openalex_muestra.json", encoding="utf-8"))
+esp = sum(1 for w in r["results"] if w["cited_by_count"] >= 100)
+feedback = {"correct": True, "message": f"Correcto: {esp} trabajos con 100 citas o más."} if result == esp else {"correct": False, "message": "La lista está en respuesta['results']."}
+feedback
+```
+
+### Ejercicio 4.3 · Autores por país (R) {.unnumbered}
+
+Cada trabajo tiene una lista de autorías con sus países. Cuenta cuántos trabajos tienen **al menos un autor de España** (código `ES`).
+
+```{webr}
+#| exercise: p4_pais
+#| setup: true
+oa <- jsonlite::fromJSON("datos/openalex_muestra.json", simplifyVector = FALSE)
+```
+
+```{webr}
+#| exercise: p4_pais
+tiene_pais <- function(trabajo, codigo) {
+  paises <- unlist(lapply(trabajo$authorships, function(a) a$countries))
+  codigo %in% paises
+}
+sum(sapply(oa$results, tiene_pais, codigo = "______"))
+```
+
+::: {.hint exercise="p4_pais"}
+El código ISO de España es `ES`.
+:::
+
+::: {.solution exercise="p4_pais"}
+```r
+tiene_pais <- function(trabajo, codigo) {
+  paises <- unlist(lapply(trabajo$authorships, function(a) a$countries))
+  codigo %in% paises
+}
+sum(sapply(oa$results, tiene_pais, codigo = "ES"))
+```
+Con `simplifyVector = FALSE`, el JSON se lee como listas anidadas, que es lo más seguro cuando la estructura es irregular.
+:::
+
+```{webr}
+#| exercise: p4_pais
+#| check: true
+x <- jsonlite::fromJSON("datos/openalex_muestra.json", simplifyVector = FALSE)
+esp <- sum(sapply(x$results, function(w) "ES" %in% unlist(lapply(w$authorships, function(a) a$countries))))
+if (isTRUE(all.equal(as.numeric(.result), esp))) list(correct = TRUE, message = paste("Correcto:", esp, "trabajos con autoría española en la muestra.")) else
+  list(correct = FALSE, message = "Usa el código ES.")
+```
+
+## Actividades
+
+::: {.clasificar #ia-p4-codigo titulo="¿Qué haces ante este código de estado?" categorias="Procesar|Revisar la petición|Esperar y reintentar"}
+- 200 → Procesar
+- 400 → Revisar la petición
+- 429 → Esperar y reintentar
+- 404 → Revisar la petición // El identificador no existe.
+- 503 → Esperar y reintentar
+:::
+
+::: {.clasificar #ia-p4-responsable titulo="¿Descarga responsable o no?" categorias="Responsable|No responsable"}
+- Guardar las respuestas en disco y no repetir peticiones → Responsable
+- Lanzar 50 peticiones en paralelo sin pausas → No responsable
+- Identificarse con un correo en el User-Agent → Responsable
+- Escribir la clave de la API en el script que se sube a GitHub → No responsable
+- Anotar la fecha de descarga de los datos → Responsable
+:::
+
+## Reto evaluable {#reto-p4}
+
+::: {.callout-important appearance="simple" icon="false"}
+## Reto del capítulo 4 · Un mini estudio bibliométrico con datos abiertos
+1. Elige un tema de tu campo y descarga de OpenAlex (con paginación por cursor) todos los artículos de los últimos cinco años, o un máximo de 2000.
+2. Guarda la respuesta bruta con la fecha y aplica un ETL (capítulo 3).
+3. Responde a tres preguntas: evolución anual, proporción en acceso abierto y países más frecuentes.
+4. Completa los metadatos de una muestra con Crossref y compara las dos fuentes.
+
+**Entrega:** el enlace al repositorio con la [plantilla de entrega](plantillas/entrega_reto.qmd).
+:::
+
+## Autoevaluación
+
+Responde a todas las preguntas y pulsa **Mostrar respuestas**. No cuenta para la nota.
+
+::: {.webex-check .webex-box}
+1. El código de estado que indica demasiadas peticiones es el {{< mcq "200" "404" "*429" >}}
+2. El formato de respuesta más habitual de las API académicas es {{< fitb "JSON" ignorecase=true >}}
+3. Los datos de OpenAlex se publican con licencia CC0. {{< torf true >}}
+4. Para recorrer conjuntos grandes de resultados en OpenAlex se usa la paginación por {{< fitb "cursor" ignorecase=true >}}
+5. Las condiciones de uso de una API no cambian nunca. {{< torf false >}}
+6. Crossref contiene sobre todo {{< mcq "textos completos de los artículos" "*metadatos de los DOI depositados por las editoriales" "perfiles de investigadores" >}}
+7. Conviene construir las URL concatenando texto a mano. {{< torf false >}}
+8. ¿Por qué conviene guardar las respuestas de la API en disco?
+
+{{< longmcq "Para ocupar espacio" "*Para no repetir peticiones, poder reproducir el análisis y documentar qué datos se usaron y cuándo" "Porque la API lo exige siempre" >}}
+:::
+
+::: {.webex-solution boton="Ver explicaciones"}
+- *Too Many Requests*.
+- *JavaScript Object Notation*.
+- Dominio público.
+- `meta.next_cursor`.
+- Lee la documentación vigente.
+- Referencias y financiación, si se depositan.
+- Usa `urlencode` o `req_url_query`.
+- Caché y trazabilidad.
+:::
