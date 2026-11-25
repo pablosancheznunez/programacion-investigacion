@@ -6,7 +6,7 @@ subtitulo_portada: 'Python, R, ETL, API, paquetes
 
   y servidores MCP'
 cita: Sánchez-Núñez, P. (2026). *Programación para la investigación*. Universidad
-  Carlos III de Madrid. Zenodo.
+  Carlos III de Madrid. Zenodo. <https://doi.org/10.5281/zenodo.24534442>
 materias: Programación científica; Python; R; ETL; API; paquetes de software; Model
   Context Protocol; reproducibilidad
 moodle: Programación para la investigación (libro)
