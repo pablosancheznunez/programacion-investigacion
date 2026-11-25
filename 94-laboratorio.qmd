@@ -1,0 +1,75 @@
+---
+engine: markdown
+---
+
+# Laboratorio interactivo {#sec-laboratorio}
+
+Este apéndice reúne laboratorios y actividades para practicar las ideas del libro en tu navegador.
+
+## Laboratorio: de JSON a tabla {#lab-json}
+
+::: {.laboratorio}
+::: {.laboratorio-etiqueta}
+Laboratorio · se ejecuta en tu navegador
+:::
+
+Las API devuelven JSON **anidado**: objetos dentro de objetos y listas dentro de registros. Para analizarlo hay que **aplanarlo** en una tabla. Edita el JSON (tiene la forma de una respuesta de OpenAlex, simplificada) y elige qué hacer con las listas.
+
+```{ojs}
+//| echo: false
+areaJ = window.Lab.area
+selJ = window.Lab.seleccion
+viewof jsonTxt = areaJ("JSON de la respuesta", {rows: 12, value: JSON.stringify({meta: {count: 2}, results: [
+  {id: "W1", title: "Open data reuse in libraries", publication_year: 2023, open_access: {is_oa: true, oa_status: "gold"}, authorships: [{author: {display_name: "Ana Ruiz"}}, {author: {display_name: "Luis Gil"}}], concepts: ["Open data", "Libraries"]},
+  {id: "W2", title: "Reproducible research software", publication_year: 2024, open_access: {is_oa: false, oa_status: "closed"}, authorships: [{author: {display_name: "Marta Sanz"}}], concepts: ["Software"]}]}, null, 2)})
+viewof modoListas = selJ("Listas de objetos (authorships)", ["Unir en una celda con «; »", "Una fila por autor"], {value: "Unir en una celda con «; »"})
+```
+
+```{ojs}
+//| echo: false
+{
+  const d = html`<div role="status" aria-live="polite"></div>`;
+  const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({"&": "&amp;", "<": "&lt;", ">": "&gt;"}[c]));
+  let datos;
+  try { datos = JSON.parse(jsonTxt); } catch (e) { d.innerHTML = `<p class="text-danger">⚠ JSON no válido: ${esc(e.message)}. Revisa comas, comillas y llaves.</p>`; return d; }
+  const registros = Array.isArray(datos) ? datos : Array.isArray(datos.results) ? datos.results : [datos];
+  const plano = (o, pre = "", out = {}) => { for (const [k, v] of Object.entries(o)) { const c = pre ? pre + "." + k : k;
+    if (v && typeof v === "object" && !Array.isArray(v)) plano(v, c, out);
+    else if (Array.isArray(v)) out[c] = v.map((x) => x && typeof x === "object" ? Object.values(plano(x)).join(" ") : x).join("; ");
+    else out[c] = v; } return out; };
+  let filas = [];
+  if (modoListas.startsWith("Una fila")) registros.forEach((r) => { const {authorships = [], ...resto} = r; const base = plano(resto); (authorships.length ? authorships : [{}]).forEach((a) => filas.push({...base, ...plano(a, "authorships")})); });
+  else filas = registros.map((r) => plano(r));
+  const cols = [...new Set(filas.flatMap(Object.keys))];
+  const r = `library(jsonlite)\nrespuesta <- fromJSON("respuesta.json", flatten = TRUE)\ntabla <- respuesta$results${modoListas.startsWith("Una fila") ? "\n# una fila por autor\ntabla <- tidyr::unnest(tabla, authorships)" : "\n# listas a texto\ntabla$authorships <- vapply(tabla$authorships, function(a) paste(a$author.display_name, collapse = \"; \"), \"\")"}`;
+  const py = `import json\nimport pandas as pd\n\nwith open("respuesta.json") as f:\n    datos = json.load(f)\n${modoListas.startsWith("Una fila") ? 'tabla = pd.json_normalize(datos["results"], record_path="authorships",\n                          meta=["id", "title", "publication_year"], sep=".")' : 'tabla = pd.json_normalize(datos["results"], sep=".")'}`;
+  d.innerHTML = `<p><strong>${filas.length} filas × ${cols.length} columnas</strong></p><div class="table-responsive"><table class="table table-sm"><thead><tr>${cols.map((c) => `<th scope="col"><code>${esc(c)}</code></th>`).join("")}</tr></thead><tbody>${filas.map((f) => `<tr>${cols.map((c) => `<td>${f[c] === undefined ? "<em>NA</em>" : esc(f[c])}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
+  <div class="row"><div class="col-md-6"><p class="small mb-1">En R</p><pre class="sourceCode"><code>${esc(r)}</code></pre></div><div class="col-md-6"><p class="small mb-1">En Python</p><pre class="sourceCode"><code>${esc(py)}</code></pre></div></div>`;
+  return d;
+}
+```
+
+Fíjate en que «una fila por autor» **multiplica** las filas: si después cuentas artículos, cuenta valores distintos de `id`, no filas.
+:::
+
+## Actividad: monta un flujo ETL
+
+::: {.ordenar #ia-lab-etl titulo="Ordena los pasos de un flujo ETL reproducible"}
+Vas a construir un conjunto de datos de publicaciones de tu grupo a partir de una API.
+
+1. Definir la consulta y guardarla en un fichero de configuración
+2. Descargar todas las páginas de resultados respetando los límites de la API
+3. Guardar la respuesta original (JSON) sin modificar
+4. Aplanar el JSON en una tabla
+5. Limpiar y normalizar (fechas, nombres, duplicados)
+6. Validar con pruebas (filas esperadas, columnas obligatorias, sin identificadores repetidos)
+7. Cargar la tabla final en CSV o en una base de datos y registrar la fecha y la versión
+
+Guardar la respuesta original antes de transformarla permite repetir la limpieza sin volver a llamar a la API, y la validación detecta los cambios de formato antes de que lleguen a tus análisis.
+:::
+
+## Para ver y seguir aprendiendo
+
+Son enlaces, no vídeos incrustados: el vídeo se abre en la web de quien lo publica, así esta página no carga rastreadores de terceros. La mayoría está en inglés; activa los subtítulos si los necesitas.
+
+- **[Code Smells and Feels](https://www.youtube.com/watch?v=7oyiPBjLAWY)** — Jenny Bryan · useR! 2018. Cómo reconocer el código «que huele mal» en R y refactorizarlo. Diapositivas y materiales en [su repositorio](https://github.com/jennybc/code-smells-and-feels).

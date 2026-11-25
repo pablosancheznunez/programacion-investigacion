@@ -51,6 +51,7 @@ book:
     - 06-mcp.qmd
   appendices:
   - 90-chuleta.qmd
+  - 94-laboratorio.qmd
   - 91-guia-docente.qmd
   - 92-glosario.qmd
 lang: es

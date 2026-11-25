@@ -43,18 +43,18 @@ jobs:
         run: python herramientas/pruebas/ejercicios.py . 60 00-r-en-el-libro.qmd 01-flujo.qmd 03-etl.qmd 04-api.qmd 05-paquetes.qmd
 
       - name: Preguntas de autoevaluación
-        run: python herramientas/pruebas/autoevaluacion.py _book index.html 00-r-en-el-libro.html 01-flujo.html 02-python.html 03-etl.html 04-api.html 05-paquetes.html 06-mcp.html 90-chuleta.html 91-guia-docente.html 92-glosario.html
+        run: python herramientas/pruebas/autoevaluacion.py _book index.html 00-r-en-el-libro.html 01-flujo.html 02-python.html 03-etl.html 04-api.html 05-paquetes.html 06-mcp.html 90-chuleta.html 94-laboratorio.html 91-guia-docente.html 92-glosario.html
 
       - name: Accesibilidad (axe-core, WCAG 2.1 AA)
         env:
           AXE_JS: node_modules/axe-core/axe.min.js
-        run: python herramientas/pruebas/accesibilidad.py _book index.html 00-r-en-el-libro.html 01-flujo.html 02-python.html 03-etl.html 04-api.html 05-paquetes.html 06-mcp.html 90-chuleta.html 91-guia-docente.html 92-glosario.html
+        run: python herramientas/pruebas/accesibilidad.py _book index.html 00-r-en-el-libro.html 01-flujo.html 02-python.html 03-etl.html 04-api.html 05-paquetes.html 06-mcp.html 90-chuleta.html 94-laboratorio.html 91-guia-docente.html 92-glosario.html
 
       - name: Accesibilidad en modo oscuro
         env:
           AXE_JS: node_modules/axe-core/axe.min.js
           MODO: oscuro
-        run: python herramientas/pruebas/accesibilidad.py _book index.html 00-r-en-el-libro.html 01-flujo.html 02-python.html 03-etl.html 04-api.html 05-paquetes.html 06-mcp.html 90-chuleta.html 91-guia-docente.html 92-glosario.html
+        run: python herramientas/pruebas/accesibilidad.py _book index.html 00-r-en-el-libro.html 01-flujo.html 02-python.html 03-etl.html 04-api.html 05-paquetes.html 06-mcp.html 90-chuleta.html 94-laboratorio.html 91-guia-docente.html 92-glosario.html
 
       - uses: actions/upload-artifact@v4
         if: always()
