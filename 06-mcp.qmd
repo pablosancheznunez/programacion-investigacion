@@ -285,6 +285,37 @@ else:
 feedback
 ```
 
+## Caso práctico resuelto
+
+::: {.callout-note appearance="simple" icon="false"}
+## Diseñar un servidor MCP con permisos mínimos
+Objetivo: que un asistente pueda consultar la bibliografía de tu tesis y comprobar referencias.
+
+| Capacidad | Tipo | Permisos | Riesgo |
+|---|---|---|---|
+| `buscar_referencia(texto)` | Herramienta | Solo lectura de la biblioteca Zotero exportada | Bajo |
+| `verificar_doi(doi)` | Herramienta | Llamada a la API de Crossref | Bajo; el contenido externo se trata como datos |
+| `biblioteca://tesis` | Recurso | Lectura del archivo BibTeX | Bajo |
+| `añadir_referencia(...)` | — | **No se implementa**: escribir exige revisión humana | — |
+
+Decisiones: transporte stdio (local), sin claves en el código, registro de todas las llamadas y documentación de qué datos ve el asistente.
+:::
+
+## Ejercicios graduados
+
+**Básico.** ¿Qué tipo de capacidad MCP sería «plantilla para revisar el formato APA de una referencia»?
+
+::: {.webex-solution boton="Ver solución"}
+Una plantilla (*prompt*): una instrucción predefinida que la persona elige usar.
+:::
+
+**Avanzado.** Implementa en Python con FastMCP las dos herramientas de solo lectura de la tabla y pruébalas con el MCP Inspector.
+
+::: {.webex-solution boton="Ver solución"}
+Cada herramienta debe tener anotaciones de tipo, *docstring* clara, manejo de errores (DOI inexistente, sin conexión) y devolver datos estructurados; el análisis de riesgos va en el README.
+:::
+
+
 ## Actividades
 
 ::: {.clasificar #ia-p6-tipo titulo="¿Herramienta, recurso o plantilla?" categorias="Herramienta|Recurso|Plantilla"}

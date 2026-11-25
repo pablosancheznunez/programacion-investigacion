@@ -258,6 +258,37 @@ if (isTRUE(all.equal(as.numeric(.result), esp))) list(correct = TRUE, message = 
   list(correct = FALSE, message = "Usa el código ES.")
 ```
 
+## Caso práctico resuelto
+
+::: {.callout-note appearance="simple" icon="false"}
+## Descargar todos los resultados con paginación por cursor
+Necesitas todos los artículos de 2024 sobre «research software» en OpenAlex (unos pocos miles). Procedimiento:
+
+1. **Primera petición** con `cursor=*` y `per_page=200`.
+2. Guardar `results` y leer `meta.next_cursor`.
+3. Repetir con el nuevo cursor hasta que sea nulo.
+4. **Pausa** breve entre peticiones y reintento si aparece un 429.
+5. **Guardar cada página** en disco (`pagina_001.json`…) para no repetir la descarga si algo falla.
+6. Anotar la fecha y la consulta exacta.
+
+Comprobación: el número de registros descargados debe coincidir con `meta.count` de la primera respuesta (salvo cambios durante la descarga).
+:::
+
+## Ejercicios graduados
+
+**Básico.** ¿Por qué se guarda cada página en disco y no solo el resultado final?
+
+::: {.webex-solution boton="Ver solución"}
+Para poder reanudar la descarga si falla a mitad, no repetir peticiones y conservar los datos brutos tal como llegaron.
+:::
+
+**Avanzado.** Escribe la función de descarga con cursor en R con httr2, guardando cada página y registrando el número total de resultados.
+
+::: {.webex-solution boton="Ver solución"}
+Usa un bucle `while` con `req_url_query(cursor = cursor)`, `resp_body_json()`, `jsonlite::write_json()` para cada página y `Sys.sleep()` entre peticiones; termina cuando `next_cursor` sea `NULL`.
+:::
+
+
 ## Actividades
 
 ::: {.clasificar #ia-p4-codigo titulo="¿Qué haces ante este código de estado?" categorias="Procesar|Revisar la petición|Esperar y reintentar"}

@@ -209,6 +209,38 @@ feedback = {"correct": True, "message": "Correcto: las tres pruebas pasan."} if 
 feedback
 ```
 
+## Caso práctico resuelto
+
+::: {.callout-note appearance="simple" icon="false"}
+## De tres scripts a un paquete en una mañana
+Tres proyectos copian las mismas funciones (`normaliza_doi`, `indice_h`, `lee_openalex`). Pasos:
+
+1. `usethis::create_package("bibliometrica")`.
+2. Mover cada función a `R/` con documentación roxygen2 y `@export`.
+3. Declarar dependencias: `usethis::use_package("jsonlite")`.
+4. Una prueba por función con casos normales y extremos.
+5. `devtools::check()` hasta 0 errores, 0 avisos y 0 notas.
+6. Sustituir el código copiado en los proyectos por `library(bibliometrica)`.
+7. GitHub + Zenodo para la versión 0.1.0 con DOI.
+
+Resultado: un único lugar donde corregir errores, documentación accesible con `?indice_h` y un software citable.
+:::
+
+## Ejercicios graduados
+
+**Básico.** ¿En qué archivo se declara que el paquete depende de jsonlite?
+
+::: {.webex-solution boton="Ver solución"}
+En `DESCRIPTION`, en el campo `Imports` (lo añade `usethis::use_package()`).
+:::
+
+**Avanzado.** Añade una viñeta (`usethis::use_vignette()`) a tu paquete con un ejemplo completo de uso sobre datos reales.
+
+::: {.webex-solution boton="Ver solución"}
+La viñeta debe ejecutarse durante `check()`, usar datos pequeños incluidos en el paquete o descargables con caché, y mostrar el flujo completo de principio a fin.
+:::
+
+
 ## Actividades
 
 ::: {.clasificar #ia-p5-archivo titulo="¿Dónde va cada cosa en un paquete de R?" categorias="DESCRIPTION|R/|tests/testthat/|man/|inst/CITATION"}

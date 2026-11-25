@@ -268,6 +268,38 @@ if (isTRUE(all.equal(as.numeric(.result), sum(x$results$open_access$is_oa)))) li
   list(correct = FALSE, message = "Usa el campo is_oa.")
 ```
 
+## Caso práctico resuelto
+
+::: {.callout-note appearance="simple" icon="false"}
+## Un registro de cambios del ETL
+Al limpiar `publicaciones.csv`, el registro de cambios documenta cada paso:
+
+| Paso | Filas antes | Filas después | Motivo |
+|---|---|---|---|
+| Lectura | — | 62 | |
+| Normalizar DOI | 62 | 62 | Formatos distintos unificados |
+| Eliminar duplicados (título + autores) | 62 | 60 | 2 registros repetidos |
+| Año no numérico («s.f.») | 60 | 60 | Marcado como ausente, no eliminado |
+| Validación | 60 | 60 | Años entre 2019 y 2024, citas ≥ 0 |
+
+Este registro va en la sección de métodos: cualquier lector sabe qué se hizo con los datos.
+:::
+
+## Ejercicios graduados
+
+**Básico.** ¿Por qué conviene marcar los años «s.f.» como ausentes en lugar de borrar esas filas?
+
+::: {.webex-solution boton="Ver solución"}
+Porque el resto de la información del registro sigue siendo útil para otros análisis; borrar filas reduce la muestra y puede introducir sesgos. Los análisis por año excluirán los ausentes de forma explícita.
+:::
+
+**Avanzado.** Añade a tu ETL una función de validación que falle con un mensaje claro si algún año está fuera de rango o hay DOI duplicados.
+
+::: {.webex-solution boton="Ver solución"}
+En Python, con `assert` o lanzando `ValueError` con un mensaje; en R, con `stopifnot()` o `stop()`. La validación debe ejecutarse siempre al final del proceso.
+:::
+
+
 ## Actividades
 
 ::: {.ordenar #ia-p3-pasos titulo="Ordena un proceso ETL"}

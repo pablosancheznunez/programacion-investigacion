@@ -209,6 +209,45 @@ else:
 feedback
 ```
 
+## Caso práctico resuelto
+
+::: {.callout-note appearance="simple" icon="false"}
+## De un bucle a pandas
+Tarea: calcular la media de citas por año.
+
+Versión con bucle y diccionarios:
+
+```python
+suma, n = {}, {}
+for fila in registros:
+    a = fila["anio"]; suma[a] = suma.get(a, 0) + fila["citas"]; n[a] = n.get(a, 0) + 1
+medias = {a: suma[a] / n[a] for a in suma}
+```
+
+Versión con pandas, vectorizada:
+
+```python
+medias = pub.groupby("anio")["citas"].mean()
+```
+
+La segunda es más corta, más legible y menos propensa a errores. El bucle sigue siendo útil para entender qué hace `groupby` o para estructuras que no son tablas (JSON anidado).
+:::
+
+## Ejercicios graduados
+
+**Básico.** ¿Qué devuelve `[c * 2 for c in [1, 2, 3] if c > 1]`?
+
+::: {.webex-solution boton="Ver solución"}
+`[4, 6]`: filtra los elementos mayores que 1 y los multiplica por 2.
+:::
+
+**Avanzado.** Escribe una función que reciba un DataFrame de publicaciones y devuelva, por año, el número de artículos, la mediana de citas y el porcentaje en acceso abierto.
+
+::: {.webex-solution boton="Ver solución"}
+Puede usarse `groupby('anio').agg(n=('id', 'count'), mediana=('citas', 'median'), oa=('oa', 'mean'))` y multiplicar `oa` por 100. Conviene documentarla y probarla con un DataFrame pequeño.
+:::
+
+
 ## Actividades
 
 ::: {.clasificar #ia-p2-tipo titulo="¿Qué estructura de Python conviene?" categorias="Lista|Diccionario|DataFrame"}

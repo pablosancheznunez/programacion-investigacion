@@ -194,6 +194,37 @@ if (identical(.result, "2026-03-07_encuesta.csv")) list(correct = TRUE, message 
   list(correct = FALSE, message = "Debe quedar 2026-03-07_encuesta.csv")
 ```
 
+## Caso práctico resuelto
+
+::: {.callout-note appearance="simple" icon="false"}
+## Rescatar un proyecto desordenado
+Una carpeta real de tesis: `datos_final.xlsx`, `datos_final_v2_BUENO.xlsx`, `analisis.R`, `analisis_copia.R`, `grafico1.png`… Plan de rescate en una tarde:
+
+1. **Estructura:** crear `datos/brutos`, `datos/procesados`, `codigo`, `resultados`; mover los originales a `brutos` y no tocarlos más.
+2. **Identificar el script vigente** comparando fechas y contenido; borrar las copias tras guardarlas en Git.
+3. **Git:** `git init`, un primer *commit* con todo y, a partir de ahí, cambios pequeños con mensajes claros.
+4. **Un script maestro** que ejecute en orden: limpieza → análisis → figuras.
+5. **Entorno:** `renv::init()` o `uv init` para fijar versiones.
+6. **README** con cómo reproducir los resultados.
+
+Prueba final: clonar el repositorio en otra carpeta y ejecutar el script maestro sin tocar nada.
+:::
+
+## Ejercicios graduados
+
+**Básico.** ¿Qué mensaje de *commit* es mejor: «cambios» o «Excluye cuestionarios incompletos antes del análisis»?
+
+::: {.webex-solution boton="Ver solución"}
+El segundo: explica qué cambia y por qué, y permite encontrar el cambio más tarde en el historial.
+:::
+
+**Avanzado.** Aplica el plan de rescate a un proyecto tuyo y documenta en el README los pasos para reproducirlo.
+
+::: {.webex-solution boton="Ver solución"}
+El README debe indicar requisitos, cómo instalar el entorno, el orden de ejecución, qué produce cada script y la licencia de los datos y del código.
+:::
+
+
 ## Actividades
 
 ::: {.ordenar #ia-p1-git titulo="Ordena un ciclo de trabajo con Git y GitHub"}
