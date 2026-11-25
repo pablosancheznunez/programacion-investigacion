@@ -69,34 +69,49 @@ import os, time, requests
 
 def openalex(params, max_paginas=5):
     """Descarga trabajos de OpenAlex paginando con cursor."""
-    url, cursor, todos = "https://api.openalex.org/works", "*", []
-    for _ in range(max_paginas):
+    url, cursor, todos = "https://api.openalex.org/works", "*", [] # <1>
+    for _ in range(max_paginas): # <2>
         r = requests.get(url, params={**params, "cursor": cursor, "per_page": 200},
-                         headers={"User-Agent": f"mi-proyecto (mailto:{os.environ['MI_CORREO']})"},
-                         timeout=30)
-        if r.status_code == 429:
+                         headers={"User-Agent": f"mi-proyecto (mailto:{os.environ['MI_CORREO']})"}, # <3>
+                         timeout=30) # <4>
+        if r.status_code == 429: # <5>
             time.sleep(10); continue
-        r.raise_for_status()
+        r.raise_for_status() # <6>
         datos = r.json()
         todos += datos["results"]
-        cursor = datos["meta"].get("next_cursor")
+        cursor = datos["meta"].get("next_cursor") # <7>
         if not cursor:
             break
-        time.sleep(0.2)
+        time.sleep(0.2) # <8>
     return todos
 ```
+1. El cursor `"*"` pide la primera página; OpenAlex devuelve en cada respuesta el cursor de la siguiente.
+2. Un límite de páginas evita descargas infinitas mientras pruebas la consulta.
+3. Te identificas con tu correo, leído de una variable de entorno y no escrito en el código.
+4. Sin `timeout`, una conexión colgada bloquearía el script indefinidamente.
+5. El código 429 significa «demasiadas peticiones»: esperas y vuelves a intentarlo.
+6. Cualquier otro error (404, 500…) detiene el script en lugar de seguir con datos incompletos.
+7. Cuando no hay cursor siguiente, ya tienes todos los resultados.
+8. Una pausa breve entre páginas respeta los límites de uso de la API.
+
 
 En R, con httr2:
 
 ```r
 library(httr2)
-resp <- request("https://api.openalex.org/works") |>
-  req_url_query(filter = "publication_year:2024,is_oa:true", search = "research software") |>
-  req_user_agent(paste0("mi-proyecto (mailto:", Sys.getenv("MI_CORREO"), ")")) |>
-  req_retry(max_tries = 3) |>
-  req_perform()
-datos <- resp_body_json(resp)
+resp <- request("https://api.openalex.org/works") |> # <1>
+  req_url_query(filter = "publication_year:2024,is_oa:true", search = "research software") |> # <2>
+  req_user_agent(paste0("mi-proyecto (mailto:", Sys.getenv("MI_CORREO"), ")")) |> # <3>
+  req_retry(max_tries = 3) |> # <4>
+  req_perform() # <5>
+datos <- resp_body_json(resp) # <6>
 ```
+1. `request()` solo prepara la petición; todavía no se conecta a nada.
+2. Los filtros van separados por comas y se combinan con «y»; `search` busca en título, resumen y texto.
+3. El correo, de nuevo desde una variable de entorno (`usethis::edit_r_environ()`).
+4. Reintenta automáticamente ante errores temporales como el 429 o el 503, esperando cada vez más.
+5. Aquí se envía la petición; si la respuesta es un error, R se detiene con un mensaje claro.
+6. Convierte el JSON en una lista de R; después tendrás que aplanarla (véase el laboratorio «De JSON a tabla»).
 
 ## Laboratorio: consulta OpenAlex en directo {#lab-p4-openalex}
 

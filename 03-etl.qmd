@@ -59,6 +59,58 @@ Wickham (2014) define los **datos tidy** (ordenados) con tres reglas: cada **var
 
 Una **expresión regular** describe un patrón de texto. Para los DOI, un patrón útil es `10\.\d{4,9}/\S+`: «10.», de cuatro a nueve dígitos, una barra y caracteres sin espacios.
 
+## 4. Un ETL completo, línea a línea
+
+Así queda un ETL pequeño de publicaciones con las tres fases separadas. Cada número explica una decisión.
+
+```python
+from pathlib import Path
+import pandas as pd
+
+ENTRADA = Path("datos/brutos/publicaciones.csv") # <1>
+SALIDA = Path("datos/procesados/publicaciones_limpias.csv")
+
+def extraer(ruta):
+    return pd.read_csv(ruta, dtype=str, encoding="utf-8") # <2>
+
+def transformar(df):
+    df = df.rename(columns=str.lower) # <3>
+    df["doi"] = (df["doi"].fillna("")
+                   .str.extract(r"(10\.\d{4,9}/\S+)", expand=False) # <4>
+                   .str.lower().str.rstrip(".,;"))
+    df["anio"] = pd.to_numeric(df["anio"], errors="coerce").astype("Int64") # <5>
+    oa = {"sí": True, "si": True, "true": True, "no": False, "false": False}
+    df["acceso_abierto"] = df["acceso_abierto"].str.strip().str.lower().map(oa) # <6>
+    sin_doi = df[df["doi"].isna()]
+    con_doi = df.dropna(subset=["doi"]).drop_duplicates(subset="doi") # <7>
+    return pd.concat([con_doi, sin_doi], ignore_index=True)
+
+def validar(df):
+    assert df["doi"].dropna().is_unique, "Hay DOI repetidos" # <8>
+    assert df["anio"].dropna().between(1900, 2030).all(), "Años fuera de rango"
+
+def cargar(df, ruta):
+    ruta.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(ruta, index=False, encoding="utf-8") # <9>
+
+if __name__ == "__main__":
+    datos = transformar(extraer(ENTRADA))
+    validar(datos)
+    cargar(datos, SALIDA)
+    print(f"{len(datos)} registros escritos en {SALIDA}")
+```
+1. Las rutas, en constantes al principio: cambiarlas no obliga a buscar por todo el código. Los datos brutos nunca se sobrescriben.
+2. Leerlo todo como texto evita que pandas «adivine» tipos y pierda ceros iniciales o convierta códigos en números.
+3. Normalizar los nombres de columna hace el código robusto a cambios de mayúsculas en la fuente.
+4. Extrae solo el DOI aunque venga con prefijos (`https://doi.org/`, `doi:`); el resto de la celda se descarta.
+5. `errors="coerce"` convierte en ausente lo que no es un año, en lugar de detener el proceso; `Int64` admite ausentes.
+6. Un diccionario explícito para recodificar: los valores que no estén en él quedan como ausentes y se ven.
+7. Se deduplica por DOI, pero los registros **sin** DOI se conservan: no son duplicados entre sí.
+8. Las validaciones detienen el proceso si algo no cuadra, antes de que un error llegue al análisis.
+9. Se escribe en una carpeta distinta, en UTF-8 y sin el índice de pandas.
+
+Separar `extraer`, `transformar`, `validar` y `cargar` en funciones permite probar cada fase por su cuenta y reutilizarlas con otra fuente.
+
 ## Laboratorio: prueba expresiones regulares {#lab-p3-regex}
 
 ::: {.laboratorio}

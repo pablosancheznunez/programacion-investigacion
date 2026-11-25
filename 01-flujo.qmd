@@ -72,12 +72,36 @@ Los conceptos básicos:
 - `.gitignore` indica qué no se versiona: datos personales, archivos enormes, contraseñas y claves de API, resultados que se regeneran.
 
 ```bash
-git init                         # crear el repositorio
-git add codigo/limpieza.py       # preparar un cambio
-git commit -m "Normaliza los DOI antes de deduplicar"
-git log --oneline                # ver el historial
-git switch -c analisis-bayes     # nueva rama
-git push origin main             # subir a GitHub
+git init # <1>
+git add codigo/limpieza.py # <2>
+git commit -m "Normaliza los DOI antes de deduplicar" # <3>
+git log --oneline # <4>
+git switch -c analisis-bayes # <5>
+git push origin main # <6>
+```
+1. Crea el repositorio en la carpeta actual (una sola vez por proyecto).
+2. Prepara el cambio: elige qué archivos entran en la próxima instantánea.
+3. Guarda la instantánea con un mensaje que explica **por qué**, no qué (el qué ya lo dice el *diff*).
+4. Muestra el historial, un *commit* por línea.
+5. Crea una rama y se cambia a ella: aquí puedes experimentar sin tocar `main`.
+6. Sube la rama principal a GitHub; la primera vez necesitas `git remote add origin URL`.
+
+Así se ve en el tiempo un flujo con una rama para un análisis nuevo que, una vez revisado, se integra en la principal:
+
+```{mermaid}
+%%| fig-cap: "Historial con una rama de análisis que se integra en main tras la revisión."
+%%{init: {"theme": "base", "themeVariables": {"git0": "#8fd19e", "git1": "#9ec5ff", "gitBranchLabel0": "#ffffff", "gitBranchLabel1": "#ffffff", "commitLabelColor": "#0b0b0b", "commitLabelBackground": "#ffffff", "tagLabelColor": "#0b0b0b", "tagLabelBackground": "#eceae5"}}}%%
+gitGraph
+  commit id: "Datos brutos"
+  commit id: "Limpieza de DOI"
+  branch analisis-bayes
+  checkout analisis-bayes
+  commit id: "Modelo bayesiano"
+  commit id: "Figura posterior"
+  checkout main
+  commit id: "Corrige errata"
+  merge analisis-bayes id: "Integra el análisis"
+  commit id: "v1.0 (DOI en Zenodo)" tag: "v1.0"
 ```
 
 Y una conexión con el resto del libro: si enlazas el repositorio con **Zenodo**, cada versión publicada (*release*) en GitHub recibe automáticamente un **DOI** citable. Así se publicaron los libros de esta colección.
