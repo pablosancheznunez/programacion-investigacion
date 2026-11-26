@@ -285,7 +285,7 @@ Responde a todas las preguntas y pulsa **Mostrar respuestas**. No cuenta para la
 ::: {.webex-check .webex-box}
 1. En un paquete de R, las dependencias se declaran en el archivo {{< fitb "DESCRIPTION" ignorecase=true >}}
 2. roxygen2 genera la documentación de `man/` y el archivo NAMESPACE. {{< torf true >}}
-3. Marwick et al. (2018) proponen organizar un proyecto de análisis como un compendio de {{< fitb "investigación" "investigacion" ignorecase=true >}}
+3. @marwick2018 proponen organizar un proyecto de análisis como un compendio de {{< fitb "investigación" "investigacion" ignorecase=true >}}
 4. La revisión completa de un paquete de R antes de publicarlo se hace con {{< mcq "devtools::test()" "*devtools::check()" "usethis::use_r()" >}}
 5. En Python, los metadatos y las dependencias de un paquete moderno se declaran en {{< mcq "setup.cfg obligatoriamente" "*pyproject.toml" "requirements.txt siempre" >}}
 6. Añadir una función compatible con lo anterior sube la versión MAJOR. {{< torf false >}}

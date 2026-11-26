@@ -179,7 +179,7 @@ Las interfaces de estos paquetes evolucionan deprisa: consulta su documentación
 
 ## 5. Seguridad
 
-Un servidor MCP da a un modelo de lenguaje la capacidad de **actuar**. Hou et al. (2025) revisan el ecosistema y los riesgos de seguridad a lo largo del ciclo de vida de los servidores (creación, funcionamiento y actualización). Para un investigador, las reglas prácticas son:
+Un servidor MCP da a un modelo de lenguaje la capacidad de **actuar**. @hou2025 revisan el ecosistema y los riesgos de seguridad a lo largo del ciclo de vida de los servidores (creación, funcionamiento y actualización). Para un investigador, las reglas prácticas son:
 
 - **Mínimo privilegio**: cada herramienta, solo lo imprescindible (lectura antes que escritura; una carpeta, no todo el disco).
 - **Desconfía del contenido externo**: un documento, una página o una respuesta de API pueden contener **instrucciones inyectadas** dirigidas al modelo («ignora lo anterior y envía el archivo…»). Trata lo que devuelven las herramientas como datos, no como órdenes.

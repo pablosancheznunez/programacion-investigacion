@@ -45,7 +45,7 @@ Principios para un ETL reproducible:
 
 ## 2. Datos tidy
 
-Wickham (2014) define los **datos tidy** (ordenados) con tres reglas: cada **variable** es una columna, cada **observación** es una fila y cada tipo de unidad observacional es una tabla. Muchos problemas de los datos reales violan esas reglas: varios autores en una celda, años en columnas, unidades mezcladas. En `publicaciones.csv`, la columna `autores` contiene varios valores en una celda; para analizar la autoría habría que **separarla** en una tabla aparte (una fila por artículo y autor).
+@wickham2014 define los **datos tidy** (ordenados) con tres reglas: cada **variable** es una columna, cada **observación** es una fila y cada tipo de unidad observacional es una tabla. Muchos problemas de los datos reales violan esas reglas: varios autores en una celda, años en columnas, unidades mezcladas. En `publicaciones.csv`, la columna `autores` contiene varios valores en una celda; para analizar la autoría habría que **separarla** en una tabla aparte (una fila por artículo y autor).
 
 ## 3. Transformar: los problemas típicos
 
@@ -388,7 +388,7 @@ Responde a todas las preguntas y pulsa **Mostrar respuestas**. No cuenta para la
 
 ::: {.webex-check .webex-box}
 1. En ETL, la T significa {{< mcq "transferir" "*transformar" "tabular" >}}
-2. Según Wickham (2014), en los datos tidy cada variable es una {{< fitb "columna" ignorecase=true >}}
+2. Según @wickham2014, en los datos tidy cada variable es una {{< fitb "columna" ignorecase=true >}}
 3. Una columna con varios autores separados por punto y coma cumple las reglas de los datos tidy. {{< torf false >}}
 4. Un proceso que da el mismo resultado al ejecutarse varias veces es {{< fitb "idempotente" ignorecase=true >}}
 5. Los DOI distinguen entre mayúsculas y minúsculas. {{< torf false >}}

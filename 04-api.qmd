@@ -48,7 +48,7 @@ GET https://api.openalex.org/works?filter=publication_year:2024,is_oa:true&searc
 
 ## 2. API académicas abiertas
 
-- **OpenAlex** (Priem et al., 2022): índice abierto (CC0) de trabajos, autores, fuentes, instituciones y temas, con una API gratuita. Sustituto abierto de las bases de datos comerciales para muchos análisis bibliométricos.
+- **OpenAlex** [@priem2022]: índice abierto (CC0) de trabajos, autores, fuentes, instituciones y temas, con una API gratuita. Sustituto abierto de las bases de datos comerciales para muchos análisis bibliométricos.
 - **Crossref**: metadatos de los DOI registrados por las editoriales, incluidas las referencias y las financiaciones cuando se depositan.
 - **ORCID**, **DataCite** (DOI de datos y software), **Europe PMC**, **arXiv**, **Zenodo**…
 

@@ -32,7 +32,11 @@ Laboratorios: generador de `.gitignore`, probador de expresiones regulares para 
 
 ## Autoevaluación en Aula Global y diapositivas
 
-Las preguntas están exportadas a **Moodle XML** en `moodle/`. Las diapositivas de cada capítulo están en [diapositivas/](diapositivas/index.html){target="_blank"}.
+Las preguntas están exportadas a **Moodle XML** (*Banco de preguntas → Importar → Formato Moodle XML*); cada pregunta conserva su explicación como retroalimentación general.
+
+**Descarga el banco de preguntas:** [todo el libro](moodle/autoevaluacion_todo.xml) · por capítulo: [01](moodle/autoevaluacion_01_flujo.xml) · [02](moodle/autoevaluacion_02_python.xml) · [03](moodle/autoevaluacion_03_etl.xml) · [04](moodle/autoevaluacion_04_api.xml) · [05](moodle/autoevaluacion_05_paquetes.xml) · [06](moodle/autoevaluacion_06_mcp.xml)
+
+ Las diapositivas de cada capítulo están en [diapositivas/](diapositivas/index.html){target="_blank"}.
 
 ## Mantenimiento
 

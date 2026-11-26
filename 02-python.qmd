@@ -62,7 +62,7 @@ normaliza_doi("  DOI: 10.1371/Journal.PCBI.1005510")
 
 ## 2. Datos tabulares con pandas
 
-**pandas** organiza los datos en un **DataFrame**: una tabla con columnas de distinto tipo, parecida a un `data.frame` de R. Sus operaciones están **vectorizadas**: se aplican a columnas enteras sin escribir bucles, lo que es más claro y más rápido. Esa idea viene de la programación con matrices que Harris et al. (2020) describen para NumPy, la base sobre la que se construye pandas.
+**pandas** organiza los datos en un **DataFrame**: una tabla con columnas de distinto tipo, parecida a un `data.frame` de R. Sus operaciones están **vectorizadas**: se aplican a columnas enteras sin escribir bucles, lo que es más claro y más rápido. Esa idea viene de la programación con matrices que @harris2020 describen para NumPy, la base sobre la que se construye pandas.
 
 ```{pyodide}
 #| autorun: true
@@ -298,7 +298,7 @@ Responde a todas las preguntas y pulsa **Mostrar respuestas**. No cuenta para la
 - Entre triples comillas.
 - Más claro y más rápido.
 - *Not a Number*.
-- Harris et al. (2020).
+- @harris2020.
 - *List comprehension*.
-- No repetir código (Wilson et al., 2017).
+- No repetir código [@wilson2017].
 :::

@@ -30,11 +30,11 @@ Wilson, G.; Bryan, J.; Cranston, K.; Kitzes, J.; Nederbragt, L.; Teal, T. K. (20
 
 ### Lectura complementaria {.unnumbered}
 
-- Blischak, J. D.; Davenport, E. R.; Wilson, G. (2016). [A quick introduction to version control with Git and GitHub](https://doi.org/10.1371/journal.pcbi.1004668). *PLOS Computational Biology*, 12(1), e1004668.
+- @blischak2016
 
 ## 1. Prácticas «suficientemente buenas»
 
-Wilson et al. (2017) proponen un conjunto mínimo de prácticas que cualquier investigador puede adoptar, aunque no sea programador profesional. Las agrupan en seis áreas:
+@wilson2017 proponen un conjunto mínimo de prácticas que cualquier investigador puede adoptar, aunque no sea programador profesional. Las agrupan en seis áreas:
 
 | Área | Prácticas clave |
 |---|---|
@@ -287,7 +287,7 @@ El README debe indicar requisitos, cómo instalar el entorno, el orden de ejecuc
 Responde a todas las preguntas y pulsa **Mostrar respuestas**. No cuenta para la nota.
 
 ::: {.webex-check .webex-box}
-1. Según Wilson et al. (2017), los datos brutos deben editarse a mano para corregirlos. {{< torf false >}}
+1. Según @wilson2017, los datos brutos deben editarse a mano para corregirlos. {{< torf false >}}
 2. Una instantánea de los cambios con un mensaje en Git es un {{< fitb "commit" ignorecase=true >}}
 3. Las claves de API deben guardarse {{< mcq "en el código, para no perderlas" "*en variables de entorno o en un .env excluido de Git" "en el README" >}}
 4. El archivo que registra las versiones exactas de las dependencias es el archivo de {{< fitb "bloqueo" ignorecase=true >}}
